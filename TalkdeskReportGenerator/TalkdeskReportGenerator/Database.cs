@@ -1,9 +1,16 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace TalkdeskReportGenerator
 {
-    public class Database
+    internal interface IDatabase
+    {
+        SqlConnection OpenConnection();
+        void CloseConnection();
+    }
+
+    public class Database : IDatabase
     {
         private readonly SqlConnection _connection;
         private readonly string _dataSource = "IL1IPRFLCTDB005";
@@ -19,19 +26,35 @@ namespace TalkdeskReportGenerator
                                             $"Connection Timeout={_timeout};");
         }
 
-        public SqlConnection GetConnection()
+        public SqlConnection OpenConnection()
         {
-            try
+            if (_connection.State != ConnectionState.Open)
             {
-                _connection.Open();
-            }
-            catch (Exception e)
-            {
-                //need better error handling
-                Console.WriteLine(e.ToString());
+                try
+                {
+                    _connection.Open();
+                }
+                catch (Exception e)
+                {
+                    /* need better error handling */
+                    Console.WriteLine(e.ToString());
+                }
             }
 
             return _connection;
+        }
+
+        public void CloseConnection()
+        {
+            try
+            {
+                _connection.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
         }
     }
 }
