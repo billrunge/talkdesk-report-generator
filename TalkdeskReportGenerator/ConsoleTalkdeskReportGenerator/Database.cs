@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 
 namespace ConsoleTalkdeskReportGenerator
 {
-    internal interface IDatabase
+    public interface IDatabase
     {
         SqlConnection OpenConnection();
         void CloseConnection();

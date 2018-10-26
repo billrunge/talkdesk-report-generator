@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
-
 namespace ConsoleTalkdeskReportGenerator
 {
-    internal class GetAgents
+    class GetAgents
     {
         private IDatabase _database;
 
@@ -14,7 +13,7 @@ namespace ConsoleTalkdeskReportGenerator
             _database = database;
         }
 
-        public void GetAgentsList()
+        public List<Agent> GetAgentsList()
         {
             List<Agent> agentList = new List<Agent>();
             SqlConnection connection = _database.OpenConnection();
@@ -29,11 +28,23 @@ namespace ConsoleTalkdeskReportGenerator
             SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
-                Console.WriteLine(reader["UserName"].ToString());
-                Console.WriteLine(reader["UserID"].ToString());
+                string name = reader["UserName"].ToString();
+                string userId = reader["UserID"].ToString();
+                
+                if (userId == null)
+                {
+                    throw new NullReferenceException("UserID returned from database was null.");
+                }
+                Agent agent = new Agent()
+                {
+                    Name = name,
+                    UserId = userId
+                };
+                agentList.Add(agent);
             }
 
             _database.CloseConnection();
+            return agentList;
         }
     }
 }
