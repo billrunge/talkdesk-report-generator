@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 
-namespace TalkdeskReportGenerator
+namespace ConsoleTalkdeskReportGenerator
 {
     internal interface IDatabase
     {

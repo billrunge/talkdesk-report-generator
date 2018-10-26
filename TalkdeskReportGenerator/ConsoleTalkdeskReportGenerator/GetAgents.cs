@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 
 
-namespace TalkdeskReportGenerator
+namespace ConsoleTalkdeskReportGenerator
 {
     internal class GetAgents
     {
@@ -14,9 +14,9 @@ namespace TalkdeskReportGenerator
             _database = database;
         }
 
-        public List<Agent> GetAgentsList()
+        public void GetAgentsList()
         {
-            List<Agent> agentList = 
+            List<Agent> agentList = new List<Agent>();
             SqlConnection connection = _database.OpenConnection();
 
             string sql = @"
@@ -32,6 +32,8 @@ namespace TalkdeskReportGenerator
                 Console.WriteLine(reader["UserName"].ToString());
                 Console.WriteLine(reader["UserID"].ToString());
             }
+
+            _database.CloseConnection();
         }
     }
 }

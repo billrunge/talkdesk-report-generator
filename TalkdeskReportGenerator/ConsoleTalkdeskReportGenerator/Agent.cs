@@ -1,4 +1,4 @@
-﻿namespace TalkdeskReportGenerator
+﻿namespace ConsoleTalkdeskReportGenerator
 {
     class Agent
     {
