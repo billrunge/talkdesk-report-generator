@@ -18,12 +18,16 @@ namespace ConsoleTalkdeskReportGenerator
                 //DateTime statusStart = new DateTime(2018, 10, 20);
                 //DateTime statusEnd = new DateTime(2018, 10, 25);
 
+                //IGetDataSet getDataSet = new GetDataSetFromExcel();
+                //GetAgentStartStops agentStartStops = new GetAgentStartStops(getDataSet, filePath);
+                //agentStartStops.GetAgentStartStopList();
+
 
                 string filePath = @"C:\TalkdeskProject\Schedule.xlsx";
 
-                IGetDataSet getDataSet = new GetDataSetFromExcel();
-                GetAgentStartStops agentStartStops = new GetAgentStartStops(getDataSet, filePath);
-                agentStartStops.GetAgentStartStopList();
+                GetAgentTimesFromExcel getAgentTimes = new GetAgentTimesFromExcel();
+
+                getAgentTimes.GetTimes(filePath);
                 Console.ReadLine();
 
 

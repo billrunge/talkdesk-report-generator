@@ -56,6 +56,7 @@
     <Compile Include="Database.cs" />
     <Compile Include="GetAgents.cs" />
     <Compile Include="GetAgentStartStops.cs" />
+    <Compile Include="GetAgentTimesFromExcel.cs" />
     <Compile Include="GetDataSetFromExcel.cs" />
     <Compile Include="GetAgentStatuses.cs" />
     <Compile Include="Program.cs" />
