@@ -139,13 +139,14 @@
   <ItemGroup>
     <Compile Include="Agent.cs" />
     <Compile Include="AgentStartStop.cs" />
-    <Compile Include="AgentStatus.cs" />
+    <Compile Include="AgentStatuses.cs" />
+    <Compile Include="Status.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="ExcelRowRange.cs" />
     <Compile Include="GetAgents.cs" />
-    <Compile Include="GetAgentStartStops.cs" />
     <Compile Include="GetAgentTimesFromExcel.cs" />
-    <Compile Include="GetAgentStatuses.cs" />
+    <Compile Include="GetStatuses.cs" />
+    <Compile Include="GetStatusesFromStartStops.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StartStop.cs" />

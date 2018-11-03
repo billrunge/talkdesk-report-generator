@@ -13,39 +13,21 @@ namespace ConsoleTalkdeskReportGenerator
             try
             {
                 IDatabase db = new Database();
-                //GetAgentStatuses getAgentStatuses = new GetAgentStatuses(db);
-                //string userId = "58507b7e324f849110000017";
-                //DateTime statusStart = new DateTime(2018, 10, 20);
-                //DateTime statusEnd = new DateTime(2018, 10, 25);
-
-                //IGetDataSet getDataSet = new GetDataSetFromExcel();
-                //GetAgentStartStops agentStartStops = new GetAgentStartStops(getDataSet, filePath);
-                //agentStartStops.GetAgentStartStopList();
-
 
                 string filePath = @"C:\TalkdeskProject\Schedule.xlsx";
 
-                GetAgentTimesFromExcel getAgentTimes = new GetAgentTimesFromExcel();
+                IGetAgentTimes getAgentTimes = new GetAgentTimesFromExcel();
 
-                getAgentTimes.GetTimes(filePath);
+                List<AgentStartStop> startStopList = getAgentTimes.GetAgentStartStopList(filePath);
+                foreach (var startStop in startStopList)
+                {
+                    Console.WriteLine(startStop.AgentName);
+                    foreach (var s in startStop.StartStopList)
+                    {
+                        Console.WriteLine($"Start {s.Start}, End {s.Stop}");
+                    }
+                }
                 Console.ReadLine();
-
-
-
-
-
-
-
-
-                //List<AgentStatus> agentStatuses = getAgentStatuses.GetAgentStatusesList(userId, statusStart, statusEnd);
-
-                //foreach (var status in agentStatuses)
-                //{
-                //    Console.WriteLine($"{status.StatusLabel} : {status.StatusTime  / 60}");
-                //}
-
-                //Console.ReadLine();
-
 
             }
             catch(Exception e)

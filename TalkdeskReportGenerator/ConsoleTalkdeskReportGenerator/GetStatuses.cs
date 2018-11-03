@@ -5,18 +5,24 @@ using System.Data.SqlClient;
 
 namespace ConsoleTalkdeskReportGenerator
 {
-    class GetAgentStatuses
+    internal interface IGetStatuses
+    {
+        List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd);
+        string GetUserIdFromName(string name);
+    }
+
+    internal class GetStatuses : IGetStatuses
     {
         private IDatabase _database;
 
-        public GetAgentStatuses(IDatabase database)
+        public GetStatuses(IDatabase database)
         {
             _database = database;
         }
 
-        public List<AgentStatus> GetAgentStatusesList(string userId, DateTime statusStart, DateTime statusEnd)
+        public List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd)
         {
-            List<AgentStatus> agentStatuses = new List<AgentStatus>();
+            List<Status> statuses = new List<Status>();
 
             SqlConnection connection = _database.OpenConnection();
 
@@ -60,15 +66,43 @@ namespace ConsoleTalkdeskReportGenerator
 
                 statusLabel = reader["StatusLabel"].ToString();
 
-                AgentStatus agentStatus = new AgentStatus()
+                Status status = new Status()
                 {
                     StatusLabel = statusLabel,
                     StatusTime = statusTime
                 };
 
-                agentStatuses.Add(agentStatus);
+                statuses.Add(status);
             }
-            return agentStatuses;
+            connection.Close();
+            return statuses;
+        }
+
+        public string GetUserIdFromName(string name)
+        {
+            SqlConnection connection = _database.OpenConnection();
+            string userId = "";
+
+            string sql = @"
+                SELECT TOP 1 [UserID]
+                FROM [UserStatus] WITH(NOLOCK)
+                WHERE [UserName] = @UserName";
+
+            SqlParameter userNameParam = new SqlParameter("@UserName", SqlDbType.NVarChar)
+            {
+                Value = name
+            };
+
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.Add(userNameParam);
+            SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                userId = reader["UserID"].ToString();
+            }
+
+            connection.Close();
+            return userId;
         }
     }
 }

@@ -21,8 +21,6 @@ namespace ConsoleTalkdeskReportGenerator
         public int TwelveAmColumn { get; set; } = 8;
         public int ElevenPmColumn { get; }
 
-
-
         public GetAgentTimesFromExcel()
         {
             ElevenPmColumn = TwelveAmColumn + 23;
