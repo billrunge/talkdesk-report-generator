@@ -9,6 +9,7 @@ namespace ConsoleTalkdeskReportGenerator
     interface IGetAgentTimes
     {
         List<AgentStartStop> GetAgentStartStopList(string filePath);
+        DateTime WorkbookMonday { get; }
     }
 
     class GetAgentTimesFromExcel : IGetAgentTimes
@@ -20,6 +21,7 @@ namespace ConsoleTalkdeskReportGenerator
         public int AgentNameColumn { get; set; } = 7;
         public int TwelveAmColumn { get; set; } = 8;
         public int ElevenPmColumn { get; }
+        public DateTime WorkbookMonday { get; private set; }
 
         public GetAgentTimesFromExcel()
         {
@@ -66,6 +68,48 @@ namespace ConsoleTalkdeskReportGenerator
                     /* Value returned formatted like
                      * <workbookName>!<columnLetter><rowNumber>:<columnLetter><rowNumber>. 
                      * We are only interested in the row numbers */
+
+
+                    //Extract workbook date so we can determine Monday later
+                    string dateString = rowRangeString.Split('!')[0];
+
+                    if (!int.TryParse(dateString.Split('.')[0], out int month))
+                    {
+                        //Error parsing month
+                    }
+
+                    if (!int.TryParse(dateString.Split('.')[1], out int day))
+                    {
+                        //Error parsing day
+                    }
+
+                    if (!int.TryParse($"20{dateString.Split('.')[2]}", out int year))
+                    {
+                        //Error parsing year
+                    }
+
+                    DateTime workbookDay = new DateTime(year, month, day);
+
+                    switch (workbookDay.DayOfWeek)
+                    {
+                        case DayOfWeek.Monday:
+                            WorkbookMonday = workbookDay;
+                            break;
+                        case DayOfWeek.Tuesday:
+                            WorkbookMonday = workbookDay.AddDays(-1);
+                            break;
+                        case DayOfWeek.Wednesday:
+                            WorkbookMonday = workbookDay.AddDays(-2);
+                            break;
+                        case DayOfWeek.Thursday:
+                            WorkbookMonday = workbookDay.AddDays(-3);
+                            break;
+                        case DayOfWeek.Friday:
+                            WorkbookMonday = workbookDay.AddDays(-4);
+                            break;
+                        default:
+                            break;
+                    }
 
                     rowRangeString = rowRangeString.Substring(rowRangeString.IndexOf("!") + 1);
 

@@ -126,6 +126,7 @@
     <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -140,6 +141,7 @@
     <Compile Include="Agent.cs" />
     <Compile Include="AgentStartStop.cs" />
     <Compile Include="AgentStatuses.cs" />
+    <Compile Include="ConsolidateAgentStatuses.cs" />
     <Compile Include="Status.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="ExcelRowRange.cs" />

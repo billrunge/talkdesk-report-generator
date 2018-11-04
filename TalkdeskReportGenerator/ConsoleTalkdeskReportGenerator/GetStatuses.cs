@@ -7,7 +7,7 @@ namespace ConsoleTalkdeskReportGenerator
 {
     internal interface IGetStatuses
     {
-        List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd);
+        List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd, int UtcOffset);
         string GetUserIdFromName(string name);
     }
 
@@ -20,19 +20,30 @@ namespace ConsoleTalkdeskReportGenerator
             _database = database;
         }
 
-        public List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd)
+        public List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd, int UtcOffset)
         {
             List<Status> statuses = new List<Status>();
+            TimeSpan utcOffset = TimeSpan.FromHours(UtcOffset);
+
 
             SqlConnection connection = _database.OpenConnection();
 
             string sql = @"
-                SELECT SUM([StatusTime]) AS [StatusTime], 
+                SELECT Sum(CASE 
+                             WHEN ( @StatusStart <= [StatusStart] AND @StatusEnd >= [StatusEnd] ) 
+                                    THEN [StatusTime] 
+                             WHEN ( @StatusStart <= [StatusStart] AND @StatusEnd < [StatusEnd] ) 
+                                    THEN Datediff(SECOND, [StatusStart], @StatusEnd) 
+                             WHEN ( @StatusStart > [StatusStart] AND @StatusEnd <= [StatusEnd] ) 
+                                    THEN Datediff(SECOND, @StatusStart, @StatusEnd) 
+                             WHEN ( @StatusStart > [StatusStart] AND @StatusEnd > [StatusEnd] ) 
+                                    THEN Datediff(SECOND, @StatusStart, [StatusEnd])  
+                           END) AS [StatusTime], 
                        [StatusLabel] 
                 FROM   [UserStatus] WITH(NOLOCK) 
                 WHERE  [UserID] = @UserID 
-                       AND [StatusStart] > @StatusStart 
-                       and [StatusEnd] < @StatusEnd 
+                       AND [StatusEnd] > @StatusStart 
+                       AND [StatusStart] < @StatusEnd 
                 GROUP  BY [StatusLabel]";
 
             SqlParameter userIdParam = new SqlParameter("@UserID", SqlDbType.NVarChar)
@@ -40,23 +51,28 @@ namespace ConsoleTalkdeskReportGenerator
                 Value = userId
             };
 
-            SqlParameter statusStartParam = new SqlParameter("@StatusStart", SqlDbType.DateTime)
-            {
-                Value = statusStart
+            SqlParameter statusStartParam = new SqlParameter("@StatusStart", SqlDbType.DateTime2)
+            { 
+                Value = statusStart.Add(utcOffset)
             };
 
-            SqlParameter statusEndParam = new SqlParameter("@StatusEnd", SqlDbType.DateTime)
+            SqlParameter statusEndParam = new SqlParameter("@StatusEnd", SqlDbType.DateTime2)
             {
-                Value = statusEnd
+                Value = statusEnd.Add(utcOffset)
             };
+
+            //Console.WriteLine($"UTC Offset: {utcOffset.ToString()}");
+            //Console.WriteLine($"UserID: {userId}, Status Start: {statusStart}, With Offset: {statusStart.Add(utcOffset)} Status End: {statusEnd}, With Offset: {statusEnd.Add(utcOffset)}");
 
             SqlCommand command = new SqlCommand(sql, connection);
+
             command.Parameters.Add(userIdParam);
             command.Parameters.Add(statusStartParam);
             command.Parameters.Add(statusEndParam);
             SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
+
                 string statusLabel;
 
                 if (!int.TryParse(reader["StatusTime"].ToString(), out int statusTime))
@@ -68,6 +84,7 @@ namespace ConsoleTalkdeskReportGenerator
 
                 Status status = new Status()
                 {
+                    DayName = statusStart.DayOfWeek.ToString(),
                     StatusLabel = statusLabel,
                     StatusTime = statusTime
                 };
