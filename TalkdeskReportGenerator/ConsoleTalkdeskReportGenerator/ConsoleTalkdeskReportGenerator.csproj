@@ -139,7 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agent.cs" />
-    <Compile Include="AgentStartStop.cs" />
+    <Compile Include="AgentStartStops.cs" />
     <Compile Include="AgentStatuses.cs" />
     <Compile Include="ConsolidateAgentStatuses.cs" />
     <Compile Include="Status.cs" />
@@ -151,6 +151,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StartStop.cs" />
+    <Compile Include="WriteResultsToTxtFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -13,7 +13,7 @@ namespace ConsoleTalkdeskReportGenerator
             _getStatuses = getStatuses;
         }
 
-        public List<AgentStatuses> GetAgentStatusesList(List<AgentStartStop> agentStartStops, DateTime monday)
+        public List<AgentStatuses> GetAgentStatusesList(List<AgentStartStops> agentStartStops, DateTime monday)
         {
             List<AgentStatuses> agentStatusesList = new List<AgentStatuses>();
             monday = monday.Date;
@@ -22,7 +22,7 @@ namespace ConsoleTalkdeskReportGenerator
                  
                 int utcOffset = Math.Abs(TimeZoneInfo.GetUtcOffset(monday).Hours);
 
-                foreach (AgentStartStop agentStartStop in agentStartStops)
+                foreach (AgentStartStops agentStartStop in agentStartStops)
                 {
                     string userId = _getStatuses.GetUserIdFromName(agentStartStop.AgentName);
 

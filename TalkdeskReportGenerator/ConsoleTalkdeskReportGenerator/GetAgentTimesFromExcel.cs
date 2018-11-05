@@ -8,7 +8,7 @@ namespace ConsoleTalkdeskReportGenerator
 {
     internal interface IGetAgentTimes
     {
-        List<AgentStartStop> GetAgentStartStopList(string filePath);
+        List<AgentStartStops> GetAgentStartStopList(string filePath);
         DateTime WorkbookMonday { get; }
     }
 
@@ -28,9 +28,9 @@ namespace ConsoleTalkdeskReportGenerator
             ElevenPmColumn = TwelveAmColumn + 23;
         }
 
-        public List<AgentStartStop> GetAgentStartStopList(string filePath)
+        public List<AgentStartStops> GetAgentStartStopList(string filePath)
         {
-            List<AgentStartStop> startStopList = new List<AgentStartStop>();
+            List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
             //Using a Filestream so the Excel can be open while operation is occurring
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -46,7 +46,7 @@ namespace ConsoleTalkdeskReportGenerator
 
                 for (int i = range.FirstValue; i <= range.SecondValue; i++)
                 {
-                    AgentStartStop agentStartStop = GetAgentStartStopFromRow(lastWorkSheet, i);
+                    AgentStartStops agentStartStop = GetAgentStartStopFromRow(lastWorkSheet, i);
                     startStopList.Add(agentStartStop);
                 }
                 return startStopList;
@@ -136,9 +136,9 @@ namespace ConsoleTalkdeskReportGenerator
             return excelRowRange;
         }
 
-        private AgentStartStop GetAgentStartStopFromRow(IXLWorksheet worksheet, int rowNumber)
+        private AgentStartStops GetAgentStartStopFromRow(IXLWorksheet worksheet, int rowNumber)
         {
-            AgentStartStop agentStartStop = new AgentStartStop();
+            AgentStartStops agentStartStop = new AgentStartStops();
             List<int> phoneTimeColumns = new List<int>();
 
             IXLRow row = worksheet.Row(rowNumber);

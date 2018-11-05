@@ -17,6 +17,9 @@ namespace ConsoleTalkdeskReportGenerator
 
                 string filePath = "";
 
+                Console.WriteLine("Welcome!");
+                Console.WriteLine("Please select the Weekly Schedule Excel file");
+
                 OpenFileDialog fileDialog = new OpenFileDialog
                 {
                     Title = "Open Schedule Excel",
@@ -29,7 +32,9 @@ namespace ConsoleTalkdeskReportGenerator
                     filePath = fileDialog.FileName.ToString();
                 }
 
-                List<AgentStartStop> startStopList = getAgentTimes.GetAgentStartStopList(filePath);
+                Console.WriteLine("Working...");
+
+                List<AgentStartStops> startStopList = getAgentTimes.GetAgentStartStopList(filePath);
                 GetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops(getStatuses);
 
                 DateTime monday = getAgentTimes.WorkbookMonday;
@@ -37,50 +42,27 @@ namespace ConsoleTalkdeskReportGenerator
                 List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(startStopList, monday);
 
                 ConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
-
                 List<AgentStatuses> consolidatedAgentStatuses = consolidateStatuses.Consolidate(agentStatuses);
 
-                foreach(var aStatus in consolidatedAgentStatuses)
+                WriteResultsToTxtFile writeResults = new WriteResultsToTxtFile();
+
+                Console.WriteLine("Please select output directory");
+
+                string folderPath = "";
+                FolderBrowserDialog folderBrowser = new FolderBrowserDialog()
                 {
-                    Console.WriteLine(aStatus.AgentName);
-                    string mondayString = $"- Monday {Environment.NewLine}";
-                    string tuesdayString = $"- Tuesday {Environment.NewLine}";
-                    string wednesdayString = $"- Wednesday {Environment.NewLine}";
-                    string thursdayString = $"- Thursday {Environment.NewLine}";
-                    string fridayString = $"- Friday {Environment.NewLine}";
+                    Description = "Select Output Folder",
+                    ShowNewFolderButton = true                   
 
-                    foreach (var status in aStatus.Statuses)
-                    {
-                        switch (status.DayName)
-                        {
-                            case "Monday":
-                                mondayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            case "Tuesday":
-                                tuesdayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            case "Wednesday":
-                                wednesdayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            case "Thursday":
-                                thursdayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            case "Friday":
-                                fridayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            default:
-                                break;
-                        }
-                      
-                    }
-                    Console.WriteLine(mondayString);
-                    Console.WriteLine(tuesdayString);
-                    Console.WriteLine(wednesdayString);
-                    Console.WriteLine(thursdayString);
-                    Console.WriteLine(fridayString);
-
-
+                };
+                if (folderBrowser.ShowDialog() == DialogResult.OK)
+                {
+                    folderPath = folderBrowser.SelectedPath + @"\";
                 }
+
+                writeResults.WriteResults(folderPath, consolidatedAgentStatuses);
+
+                Console.WriteLine("Complete");
                 Console.ReadLine();
 
             }
