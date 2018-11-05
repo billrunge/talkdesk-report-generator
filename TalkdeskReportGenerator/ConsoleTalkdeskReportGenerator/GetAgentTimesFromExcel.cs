@@ -165,110 +165,19 @@ namespace ConsoleTalkdeskReportGenerator
          * based off of how many cells away it is from the midnight column */
         private StartStop GetStartStopByCellPosition(int position)
         {
-            StartStop startStop = new StartStop();
-
-            switch (position)
+            if (position > -1 && position < 24)
             {
-                case 0:
-                    startStop.Start = new TimeSpan(0, 0, 0);
-                    startStop.Stop = new TimeSpan(0, 59, 59);
-                    break;
-                case 1:
-                    startStop.Start = new TimeSpan(1, 0, 0);
-                    startStop.Stop = new TimeSpan(1, 59, 59);
-                    break;
-                case 2:
-                    startStop.Start = new TimeSpan(2, 0, 0);
-                    startStop.Stop = new TimeSpan(2, 59, 59);
-                    break;
-                case 3:
-                    startStop.Start = new TimeSpan(3, 0, 0);
-                    startStop.Stop = new TimeSpan(3, 59, 59);
-                    break;
-                case 4:
-                    startStop.Start = new TimeSpan(4, 0, 0);
-                    startStop.Stop = new TimeSpan(4, 59, 59);
-                    break;
-                case 5:
-                    startStop.Start = new TimeSpan(5, 0, 0);
-                    startStop.Stop = new TimeSpan(5, 59, 59);
-                    break;
-                case 6:
-                    startStop.Start = new TimeSpan(6, 0, 0);
-                    startStop.Stop = new TimeSpan(6, 59, 59);
-                    break;
-                case 7:
-                    startStop.Start = new TimeSpan(7, 0, 0);
-                    startStop.Stop = new TimeSpan(7, 59, 59);
-                    break;
-                case 8:
-                    startStop.Start = new TimeSpan(8, 0, 0);
-                    startStop.Stop = new TimeSpan(8, 59, 59);
-                    break;
-                case 9:
-                    startStop.Start = new TimeSpan(9, 0, 0);
-                    startStop.Stop = new TimeSpan(9, 59, 59);
-                    break;
-                case 10:
-                    startStop.Start = new TimeSpan(10, 0, 0);
-                    startStop.Stop = new TimeSpan(10, 59, 59);
-                    break;
-                case 11:
-                    startStop.Start = new TimeSpan(11, 0, 0);
-                    startStop.Stop = new TimeSpan(11, 59, 59);
-                    break;
-                case 12:
-                    startStop.Start = new TimeSpan(12, 0, 0);
-                    startStop.Stop = new TimeSpan(12, 59, 59);
-                    break;
-                case 13:
-                    startStop.Start = new TimeSpan(13, 0, 0);
-                    startStop.Stop = new TimeSpan(13, 59, 59);
-                    break;
-                case 14:
-                    startStop.Start = new TimeSpan(14, 0, 0);
-                    startStop.Stop = new TimeSpan(14, 59, 59);
-                    break;
-                case 15:
-                    startStop.Start = new TimeSpan(15, 0, 0);
-                    startStop.Stop = new TimeSpan(15, 59, 59);
-                    break;
-                case 16:
-                    startStop.Start = new TimeSpan(16, 0, 0);
-                    startStop.Stop = new TimeSpan(16, 59, 59);
-                    break;
-                case 17:
-                    startStop.Start = new TimeSpan(17, 0, 0);
-                    startStop.Stop = new TimeSpan(17, 59, 59);
-                    break;
-                case 18:
-                    startStop.Start = new TimeSpan(18, 0, 0);
-                    startStop.Stop = new TimeSpan(18, 59, 59);
-                    break;
-                case 19:
-                    startStop.Start = new TimeSpan(19, 0, 0);
-                    startStop.Stop = new TimeSpan(19, 59, 59);
-                    break;
-                case 20:
-                    startStop.Start = new TimeSpan(20, 0, 0);
-                    startStop.Stop = new TimeSpan(20, 59, 59);
-                    break;
-                case 21:
-                    startStop.Start = new TimeSpan(21, 0, 0);
-                    startStop.Stop = new TimeSpan(21, 59, 59);
-                    break;
-                case 22:
-                    startStop.Start = new TimeSpan(22, 0, 0);
-                    startStop.Stop = new TimeSpan(22, 59, 59);
-                    break;
-                case 23:
-                    startStop.Start = new TimeSpan(23, 0, 0);
-                    startStop.Stop = new TimeSpan(23, 59, 59);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException($"{position} is an invalid offset from midnight");
+                return new StartStop
+                {
+                    Start = new TimeSpan(position, 0, 0),
+                    Stop = new TimeSpan(position, 59, 59)
+                };
+
             }
-            return startStop;
+            else
+            {
+                throw new ArgumentOutOfRangeException($"{position} is an invalid positive offset from midnight");
+            }
         }
 
     }
