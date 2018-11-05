@@ -23,9 +23,10 @@ namespace ConsoleTalkdeskReportGenerator
         public List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd, int UtcOffset)
         {
             List<Status> statuses = new List<Status>();
-            TimeSpan utcOffset = TimeSpan.FromHours(UtcOffset);
 
-
+            /* Todo: not sure why I need to subtract an additional hour for offset to be correct */
+            TimeSpan utcOffset = TimeSpan.FromHours(UtcOffset - 1);
+            
             SqlConnection connection = _database.OpenConnection();
 
             string sql = @"
@@ -52,7 +53,7 @@ namespace ConsoleTalkdeskReportGenerator
             };
 
             SqlParameter statusStartParam = new SqlParameter("@StatusStart", SqlDbType.DateTime2)
-            { 
+            {
                 Value = statusStart.Add(utcOffset)
             };
 

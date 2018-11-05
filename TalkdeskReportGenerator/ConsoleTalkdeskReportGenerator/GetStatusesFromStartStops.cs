@@ -18,7 +18,8 @@ namespace ConsoleTalkdeskReportGenerator
             List<AgentStatuses> agentStatusesList = new List<AgentStatuses>();
             monday = monday.Date;
             if (monday.DayOfWeek == DayOfWeek.Monday)
-            {
+            {         
+                 
                 int utcOffset = Math.Abs(TimeZoneInfo.GetUtcOffset(monday).Hours);
 
                 foreach (AgentStartStop agentStartStop in agentStartStops)
@@ -43,16 +44,13 @@ namespace ConsoleTalkdeskReportGenerator
                             agentStatuses.Statuses.AddRange(agentStatus);
                         }
                     }
-
                     agentStatusesList.Add(agentStatuses);
-
                 }
             }
             else
             {
-                //The day you entered was not a monday
+                throw new ArgumentException($"{monday.ToString()} is not a Monday");
             }
-
             return agentStatusesList;
         }
 

@@ -9,17 +9,12 @@ namespace ConsoleTalkdeskReportGenerator
         public List<AgentStatuses> Consolidate(List<AgentStatuses> agentStatusesList)
         {
             List<AgentStatuses> outputList = new List<AgentStatuses>();
-            outputList = ConsolidateDays(agentStatusesList);
-            return outputList;
-        }
-
-        private List<AgentStatuses> ConsolidateDays(List<AgentStatuses> agentStatusesList)
-        {
-            List<AgentStatuses> outputList = new List<AgentStatuses>();
 
             foreach (AgentStatuses agentStatuses in agentStatusesList)
             {
-                List<Status> newStatuses = agentStatuses.Statuses
+                List<Status> newStatuses = new List<Status>();
+
+                newStatuses = agentStatuses.Statuses
                     .GroupBy(a => new
                     {
                         a.DayName,

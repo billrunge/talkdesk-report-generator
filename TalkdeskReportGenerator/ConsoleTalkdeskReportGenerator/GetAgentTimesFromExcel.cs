@@ -6,17 +6,17 @@ using System.Text.RegularExpressions;
 
 namespace ConsoleTalkdeskReportGenerator
 {
-    interface IGetAgentTimes
+    internal interface IGetAgentTimes
     {
         List<AgentStartStop> GetAgentStartStopList(string filePath);
         DateTime WorkbookMonday { get; }
     }
 
-    class GetAgentTimesFromExcel : IGetAgentTimes
+    internal class GetAgentTimesFromExcel : IGetAgentTimes
     {
 
         public string TeamName { get; set; } = "RelativityOne";
-        public string PhoneTimeColorValue { get; set; } = "0799981688894314";
+        public string PhoneTimeCellFill { get; set; } = "Solid Color Theme: Accent1, Tint: 0.799981688894314";
         public int TeamNameColumn { get; set; } = 2;
         public int AgentNameColumn { get; set; } = 7;
         public int TwelveAmColumn { get; set; } = 8;
@@ -56,7 +56,6 @@ namespace ConsoleTalkdeskReportGenerator
         private ExcelRowRange GetRowRange(IXLWorksheet worksheet)
         {
             ExcelRowRange excelRowRange = new ExcelRowRange();
-
             IXLRows col = worksheet.RowsUsed();
 
             foreach (IXLRow row in col)
@@ -65,66 +64,73 @@ namespace ConsoleTalkdeskReportGenerator
                 {
                     string rowRangeString = row.Cell(TeamNameColumn).MergedRange().ToString();
 
-                    /* Value returned formatted like
-                     * <workbookName>!<columnLetter><rowNumber>:<columnLetter><rowNumber>. 
-                     * We are only interested in the row numbers */
+                    /* 
+                     * Value returned formatted like:
+                     * <workbookName>!<columnLetter><rowNumber>:<columnLetter><rowNumber>
+                     */
 
+                    if (Regex.IsMatch(rowRangeString, "[0-9][0-9][.][0-9][0-9][.][0-9][0-9][!][aA-zZ]+[0-9]+[:][aA-zZ]+[0-9]+")) {
 
-                    //Extract workbook date so we can determine Monday later
-                    string dateString = rowRangeString.Split('!')[0];
+                        //Extract workbook date so we can determine Monday later
+                        string dateString = rowRangeString.Split('!')[0];
 
-                    if (!int.TryParse(dateString.Split('.')[0], out int month))
-                    {
-                        //Error parsing month
+                        if (!int.TryParse(dateString.Split('.')[0], out int month))
+                        {
+                            throw new FormatException($"Unable to parse {dateString.Split('.')[0]} to month int");
+                        }
+
+                        if (!int.TryParse(dateString.Split('.')[1], out int day))
+                        {
+                            throw new FormatException($"Unable to parse {dateString.Split('.')[1]} to day int");
+                        }
+
+                        if (!int.TryParse($"20{dateString.Split('.')[2]}", out int year))
+                        {
+                            throw new FormatException($"Unable to parse {dateString.Split('.')[2]} to year int");
+                        }
+
+                        DateTime workbookDay = new DateTime(year, month, day);
+
+                        switch (workbookDay.DayOfWeek)
+                        {
+                            case DayOfWeek.Monday:
+                                WorkbookMonday = workbookDay;
+                                break;
+                            case DayOfWeek.Tuesday:
+                                WorkbookMonday = workbookDay.AddDays(-1);
+                                break;
+                            case DayOfWeek.Wednesday:
+                                WorkbookMonday = workbookDay.AddDays(-2);
+                                break;
+                            case DayOfWeek.Thursday:
+                                WorkbookMonday = workbookDay.AddDays(-3);
+                                break;
+                            case DayOfWeek.Friday:
+                                WorkbookMonday = workbookDay.AddDays(-4);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException($"{workbookDay.DayOfWeek.ToString()} is not a valid weekday");
+                        }
+
+                        rowRangeString = rowRangeString.Substring(rowRangeString.IndexOf("!") + 1);
+
+                        if (!int.TryParse(Regex.Replace(rowRangeString.Split(':')[0], "[^0-9]", ""), out int firstValue))
+                        {
+                            throw new FormatException($"Unable to parse {rowRangeString.Split(':')[0]} to firstValue int");
+                        }
+
+                        if (!int.TryParse(Regex.Replace(rowRangeString.Split(':')[1], "[^0-9]", ""), out int secondValue))
+                        {
+                            throw new FormatException($"Unable to parse {rowRangeString.Split(':')[1]} to secondValue int");
+                        }
+
+                        excelRowRange.FirstValue = firstValue;
+                        excelRowRange.SecondValue = secondValue;
                     }
-
-                    if (!int.TryParse(dateString.Split('.')[1], out int day))
+                    else
                     {
-                        //Error parsing day
+                        throw new FormatException($"The row range string retrieved from the Excel was invalid. String received: {rowRangeString}");
                     }
-
-                    if (!int.TryParse($"20{dateString.Split('.')[2]}", out int year))
-                    {
-                        //Error parsing year
-                    }
-
-                    DateTime workbookDay = new DateTime(year, month, day);
-
-                    switch (workbookDay.DayOfWeek)
-                    {
-                        case DayOfWeek.Monday:
-                            WorkbookMonday = workbookDay;
-                            break;
-                        case DayOfWeek.Tuesday:
-                            WorkbookMonday = workbookDay.AddDays(-1);
-                            break;
-                        case DayOfWeek.Wednesday:
-                            WorkbookMonday = workbookDay.AddDays(-2);
-                            break;
-                        case DayOfWeek.Thursday:
-                            WorkbookMonday = workbookDay.AddDays(-3);
-                            break;
-                        case DayOfWeek.Friday:
-                            WorkbookMonday = workbookDay.AddDays(-4);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    rowRangeString = rowRangeString.Substring(rowRangeString.IndexOf("!") + 1);
-
-                    if (!int.TryParse(Regex.Replace(rowRangeString.Split(':')[0], "[^0-9]", ""), out int firstValue))
-                    {
-                        //Error parsing first value
-                    }
-
-                    if (!int.TryParse(Regex.Replace(rowRangeString.Split(':')[1], "[^0-9]", ""), out int secondValue))
-                    {
-                        //Error parsing second value
-                    }
-
-                    excelRowRange.FirstValue = firstValue;
-                    excelRowRange.SecondValue = secondValue;
                 }
             }
             return excelRowRange;
@@ -141,17 +147,9 @@ namespace ConsoleTalkdeskReportGenerator
 
             for (int i = TwelveAmColumn; i <= ElevenPmColumn; i++)
             {
-
-                if (row.Cell(i).Style.Fill.ToString() != "None")
+                if (row.Cell(i).Style.Fill.ToString() == PhoneTimeCellFill)
                 {
-                    if (row.Cell(i).Style.Fill.ToString().Split(',').Length > 1)
-                    {
-                        string fillColor = Regex.Replace(row.Cell(i).Style.Fill.ToString().Split(',')[1], "[^0-9]", "");
-                        if (fillColor == PhoneTimeColorValue)
-                        {
-                            phoneTimeColumns.Add(i);
-                        }
-                    }
+                    phoneTimeColumns.Add(i);
                 }
             }
 
@@ -159,9 +157,12 @@ namespace ConsoleTalkdeskReportGenerator
             {
                 agentStartStop.StartStopList.Add(GetStartStopByCellPosition(column - TwelveAmColumn));
             }
+
             return agentStartStop;
         }
 
+        /* This class will give you a timespan representing the start and stop midnight offset
+         * based off of how many cells away it is from the midnight column */
         private StartStop GetStartStopByCellPosition(int position)
         {
             StartStop startStop = new StartStop();
@@ -265,12 +266,9 @@ namespace ConsoleTalkdeskReportGenerator
                     startStop.Stop = new TimeSpan(23, 59, 59);
                     break;
                 default:
-                    //error
-                    break;
+                    throw new ArgumentOutOfRangeException($"{position} is an invalid offset from midnight");
             }
-
             return startStop;
-
         }
 
     }

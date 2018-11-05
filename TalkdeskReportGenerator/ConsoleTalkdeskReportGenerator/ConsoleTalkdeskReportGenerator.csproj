@@ -145,7 +145,6 @@
     <Compile Include="Status.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="ExcelRowRange.cs" />
-    <Compile Include="GetAgents.cs" />
     <Compile Include="GetAgentTimesFromExcel.cs" />
     <Compile Include="GetStatuses.cs" />
     <Compile Include="GetStatusesFromStartStops.cs" />
