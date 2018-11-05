@@ -11,8 +11,6 @@ namespace ConsoleTalkdeskReportGenerator
         {
             try
             {
-                string test = "";
-
                 IDatabase db = new Database();
                 IGetStatuses getStatuses = new GetStatuses(db);
                 IGetAgentTimes getAgentTimes = new GetAgentTimesFromExcel();
