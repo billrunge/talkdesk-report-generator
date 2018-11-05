@@ -35,11 +35,11 @@ namespace ConsoleTalkdeskReportGenerator
                 Console.WriteLine("Working...");
 
                 List<AgentStartStops> startStopList = getAgentTimes.GetAgentStartStopList(filePath);
-                GetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops(getStatuses);
+                IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
 
                 DateTime monday = getAgentTimes.WorkbookMonday;
 
-                List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(startStopList, monday);
+                List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, monday);
 
                 ConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
                 List<AgentStatuses> consolidatedAgentStatuses = consolidateStatuses.Consolidate(agentStatuses);

@@ -1,30 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 
 namespace ConsoleTalkdeskReportGenerator
 {
-    internal class GetStatusesFromStartStops
+    interface IGetStatusesFromStartStops
     {
-        public TimeZoneInfo TimeZoneInfo { get; set; } = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
-        private readonly IGetStatuses _getStatuses;
+        List<AgentStatuses> GetAgentStatusesList(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime monday);
+    }
+    class GetStatusesFromStartStops : IGetStatusesFromStartStops
+    {
+        private readonly TimeZoneInfo _excelTimeZone;
 
-        public GetStatusesFromStartStops(IGetStatuses getStatuses)
+        public GetStatusesFromStartStops()
         {
-            _getStatuses = getStatuses;
+
+            if (ConfigurationManager.AppSettings["ExcelTimeZone"] != null)
+            {
+                _excelTimeZone = TimeZoneInfo.FindSystemTimeZoneById(ConfigurationManager.AppSettings["ExcelTimeZone"]);
+            }
+            else
+            {
+                throw new ConfigurationErrorsException("Unable to retrieve ExcelTimeZone key from App.config file");
+            }
         }
 
-        public List<AgentStatuses> GetAgentStatusesList(List<AgentStartStops> agentStartStops, DateTime monday)
+        public List<AgentStatuses> GetAgentStatusesList(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime monday)
         {
             List<AgentStatuses> agentStatusesList = new List<AgentStatuses>();
             monday = monday.Date;
             if (monday.DayOfWeek == DayOfWeek.Monday)
             {         
                  
-                int utcOffset = Math.Abs(TimeZoneInfo.GetUtcOffset(monday).Hours);
+                int utcOffset = Math.Abs(_excelTimeZone.GetUtcOffset(monday).Hours);
 
                 foreach (AgentStartStops agentStartStop in agentStartStops)
                 {
-                    string userId = _getStatuses.GetUserIdFromName(agentStartStop.AgentName);
+                    string userId = getStatuses.GetUserIdFromName(agentStartStop.AgentName);
 
                     AgentStatuses agentStatuses = new AgentStatuses()
                     {
@@ -40,7 +52,7 @@ namespace ConsoleTalkdeskReportGenerator
                             DateTime startTime = day.Add(startStop.Start);
                             DateTime stopTime = day.Add(startStop.Stop);                    
 
-                            List<Status> agentStatus = _getStatuses.GetStatusesList(userId, startTime, stopTime, utcOffset);
+                            List<Status> agentStatus = getStatuses.GetStatusesList(userId, startTime, stopTime, utcOffset);
                             agentStatuses.Statuses.AddRange(agentStatus);
                         }
                     }
@@ -53,7 +65,6 @@ namespace ConsoleTalkdeskReportGenerator
             }
             return agentStatusesList;
         }
-
 
     }
 }

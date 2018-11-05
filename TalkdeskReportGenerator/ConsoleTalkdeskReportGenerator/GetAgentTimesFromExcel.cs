@@ -1,8 +1,9 @@
-﻿using ClosedXML.Excel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Configuration;
+using ClosedXML.Excel;
 
 namespace ConsoleTalkdeskReportGenerator
 {
@@ -14,18 +15,74 @@ namespace ConsoleTalkdeskReportGenerator
 
     internal class GetAgentTimesFromExcel : IGetAgentTimes
     {
-
-        public string TeamName { get; set; } = "RelativityOne";
-        public string PhoneTimeCellFill { get; set; } = "Solid Color Theme: Accent1, Tint: 0.799981688894314";
-        public int TeamNameColumn { get; set; } = 2;
-        public int AgentNameColumn { get; set; } = 7;
-        public int TwelveAmColumn { get; set; } = 8;
-        public int ElevenPmColumn { get; }
+        private readonly string _teamName;
+        private readonly string _phoneTimeCellFill;
+        private readonly int _teamNameColumn;
+        private readonly int _agentNameColumn;
+        private readonly int _twelveAmColumn;
+        private readonly int _elevenPmColumn;
         public DateTime WorkbookMonday { get; private set; }
 
         public GetAgentTimesFromExcel()
         {
-            ElevenPmColumn = TwelveAmColumn + 23;
+
+
+            if (ConfigurationManager.AppSettings["PhoneTimeCellFill"] != null)
+            {
+                _phoneTimeCellFill = ConfigurationManager.AppSettings["PhoneTimeCellFill"];
+            }
+            else
+            {
+                throw new ConfigurationErrorsException("Unable to retrieve PhoneTimeCellFill key from App.config file");
+            }
+
+            if (ConfigurationManager.AppSettings["TeamName"] != null)
+            {
+                _teamName = ConfigurationManager.AppSettings["TeamName"];
+            }
+            else
+            {
+                throw new ConfigurationErrorsException("Unable to retrieve TeamName key from App.config file");
+            }
+
+            if (ConfigurationManager.AppSettings["TeamNameColumn"] != null)
+            {
+                if (!int.TryParse(ConfigurationManager.AppSettings["TeamNameColumn"], out _teamNameColumn))
+                {
+                    throw new Exception("Unable to cast status TeamNameColumn returned from App.config to int");
+                };
+            }
+            else
+            {
+                throw new ConfigurationErrorsException("Unable to retrieve TeamNameColumn key from App.config file");
+            }
+
+            if (ConfigurationManager.AppSettings["AgentNameColumn"] != null)
+            {
+                if (!int.TryParse(ConfigurationManager.AppSettings["AgentNameColumn"], out _agentNameColumn))
+                {
+                    throw new Exception("Unable to cast status AgentNameColumn returned from App.config to int");
+                };
+            }
+            else
+            {
+                throw new ConfigurationErrorsException("Unable to retrieve AgentNameColumn key from App.config file");
+            }
+
+            if (ConfigurationManager.AppSettings["TwelveAmColumn"] != null)
+            {
+                if (!int.TryParse(ConfigurationManager.AppSettings["TwelveAmColumn"], out _twelveAmColumn))
+                {
+                    throw new Exception("Unable to cast status TwelveAmColumn returned from App.config to int");
+                };
+            }
+            else
+            {
+                throw new ConfigurationErrorsException("Unable to retrieve TwelveAmColumn key from App.config file");
+            }
+
+            _elevenPmColumn = _twelveAmColumn + 23;
+
         }
 
         public List<AgentStartStops> GetAgentStartStopList(string filePath)
@@ -60,9 +117,9 @@ namespace ConsoleTalkdeskReportGenerator
 
             foreach (IXLRow row in col)
             {
-                if (row.Cell(TeamNameColumn).Value.ToString().Trim() == TeamName)
+                if (row.Cell(_teamNameColumn).Value.ToString().Trim() == _teamName)
                 {
-                    string rowRangeString = row.Cell(TeamNameColumn).MergedRange().ToString();
+                    string rowRangeString = row.Cell(_teamNameColumn).MergedRange().ToString();
 
                     /* 
                      * Value returned formatted like:
@@ -143,11 +200,11 @@ namespace ConsoleTalkdeskReportGenerator
 
             IXLRow row = worksheet.Row(rowNumber);
 
-            agentStartStop.AgentName = row.Cell(AgentNameColumn).Value.ToString();
+            agentStartStop.AgentName = row.Cell(_agentNameColumn).Value.ToString();
 
-            for (int i = TwelveAmColumn; i <= ElevenPmColumn; i++)
+            for (int i = _twelveAmColumn; i <= _elevenPmColumn; i++)
             {
-                if (row.Cell(i).Style.Fill.ToString() == PhoneTimeCellFill)
+                if (row.Cell(i).Style.Fill.ToString() == _phoneTimeCellFill)
                 {
                     phoneTimeColumns.Add(i);
                 }
@@ -155,7 +212,7 @@ namespace ConsoleTalkdeskReportGenerator
 
             foreach (int column in phoneTimeColumns)
             {
-                agentStartStop.StartStopList.Add(GetStartStopByCellPosition(column - TwelveAmColumn));
+                agentStartStop.StartStopList.Add(GetStartStopByCellPosition(column - _twelveAmColumn));
             }
 
             return agentStartStop;
