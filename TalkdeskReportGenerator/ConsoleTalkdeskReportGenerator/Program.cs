@@ -22,7 +22,7 @@ namespace ConsoleTalkdeskReportGenerator
 
                 OpenFileDialog fileDialog = new OpenFileDialog
                 {
-                    Title = "Open Schedule Excel",
+                    Title = "Open Weekly Schedule Excel File",
                     Filter = "Excel Files|*.xlsx",
                     InitialDirectory = @"C:\"
                 };
@@ -41,10 +41,10 @@ namespace ConsoleTalkdeskReportGenerator
 
                 List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, monday);
 
-                ConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
+                IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
                 List<AgentStatuses> consolidatedAgentStatuses = consolidateStatuses.Consolidate(agentStatuses);
 
-                WriteResultsToTxtFile writeResults = new WriteResultsToTxtFile();
+                IWriteResults writeResults = new WriteResultsToTxtFile();
 
                 Console.WriteLine("Please select output directory");
 
@@ -63,7 +63,7 @@ namespace ConsoleTalkdeskReportGenerator
                 writeResults.WriteResults(folderPath, consolidatedAgentStatuses);
 
                 Console.WriteLine("Complete");
-                Console.ReadLine();
+                System.Threading.Thread.Sleep(3000);
 
             }
             catch(Exception e)

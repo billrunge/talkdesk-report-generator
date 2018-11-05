@@ -3,8 +3,11 @@ using System.Linq;
 
 namespace ConsoleTalkdeskReportGenerator
 {
-
-    internal class ConsolidateAgentStatuses
+    interface IConsolidateAgentStatuses
+    {
+        List<AgentStatuses> Consolidate(List<AgentStatuses> agentStatusesList);
+    }
+    class ConsolidateAgentStatuses : IConsolidateAgentStatuses
     {
         public List<AgentStatuses> Consolidate(List<AgentStatuses> agentStatusesList)
         {

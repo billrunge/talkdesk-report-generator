@@ -3,7 +3,12 @@ using System.Collections.Generic;
 
 namespace ConsoleTalkdeskReportGenerator
 {
-    class WriteResultsToTxtFile
+    interface IWriteResults
+    {
+        void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses);
+    }
+
+    class WriteResultsToTxtFile : IWriteResults
     {
         public string OutputFileName { get; set; } = "TalkdeskReport.txt";
 
