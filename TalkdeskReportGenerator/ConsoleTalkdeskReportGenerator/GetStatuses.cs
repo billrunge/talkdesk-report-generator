@@ -20,12 +20,10 @@ namespace ConsoleTalkdeskReportGenerator
             _database = database;
         }
 
-        public List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd, int UtcOffset)
+        public List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd, int offset)
         {
             List<Status> statuses = new List<Status>();
-
-            /* Todo: not sure why I need to subtract an additional hour for offset to be correct */
-            TimeSpan utcOffset = TimeSpan.FromHours(UtcOffset - 1);
+            TimeSpan utcOffset = TimeSpan.FromHours(offset);
             
             SqlConnection connection = _database.OpenConnection();
 
@@ -49,7 +47,7 @@ namespace ConsoleTalkdeskReportGenerator
 
             SqlParameter userIdParam = new SqlParameter("@UserID", SqlDbType.NVarChar)
             {
-                Value = userId
+                Value = userId                
             };
 
             SqlParameter statusStartParam = new SqlParameter("@StatusStart", SqlDbType.DateTime2)
@@ -70,6 +68,9 @@ namespace ConsoleTalkdeskReportGenerator
             command.Parameters.Add(userIdParam);
             command.Parameters.Add(statusStartParam);
             command.Parameters.Add(statusEndParam);
+
+
+
             SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {

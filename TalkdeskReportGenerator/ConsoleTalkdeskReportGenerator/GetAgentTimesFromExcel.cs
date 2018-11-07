@@ -17,6 +17,7 @@ namespace ConsoleTalkdeskReportGenerator
     {
         private readonly string _teamName;
         private readonly string _phoneTimeCellFill;
+        private readonly string _rowRangeRegEx;
         private readonly int _teamNameColumn;
         private readonly int _agentNameColumn;
         private readonly int _twelveAmColumn;
@@ -82,6 +83,7 @@ namespace ConsoleTalkdeskReportGenerator
             }
 
             _elevenPmColumn = _twelveAmColumn + 23;
+            _rowRangeRegEx = "[0-9][0-9][.][0-9][0-9][.][0-9][0-9][!][aA-zZ]+[0-9]+[:][aA-zZ]+[0-9]+";
 
         }
 
@@ -126,7 +128,7 @@ namespace ConsoleTalkdeskReportGenerator
                      * <workbookName>!<columnLetter><rowNumber>:<columnLetter><rowNumber>
                      */
 
-                    if (Regex.IsMatch(rowRangeString, "[0-9][0-9][.][0-9][0-9][.][0-9][0-9][!][aA-zZ]+[0-9]+[:][aA-zZ]+[0-9]+")) {
+                    if (Regex.IsMatch(rowRangeString, _rowRangeRegEx)) {
 
                         //Extract workbook date so we can determine Monday later
                         string dateString = rowRangeString.Split('!')[0];

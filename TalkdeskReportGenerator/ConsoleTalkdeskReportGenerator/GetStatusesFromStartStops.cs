@@ -30,8 +30,8 @@ namespace ConsoleTalkdeskReportGenerator
             List<AgentStatuses> agentStatusesList = new List<AgentStatuses>();
             monday = monday.Date;
             if (monday.DayOfWeek == DayOfWeek.Monday)
-            {         
-                 
+            {
+
                 int utcOffset = Math.Abs(_excelTimeZone.GetUtcOffset(monday).Hours);
 
                 foreach (AgentStartStops agentStartStop in agentStartStops)
