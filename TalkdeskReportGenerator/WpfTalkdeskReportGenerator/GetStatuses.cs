@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 
 namespace WpfTalkdeskReportGenerator
+{ 
     internal interface IGetStatuses
     {
         List<Status> GetStatusesList(string userId, DateTime statusStart, DateTime statusEnd, int UtcOffset);

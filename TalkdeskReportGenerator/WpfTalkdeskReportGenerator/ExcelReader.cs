@@ -5,7 +5,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using WpfTalkdeskReportGenerator;
 
-namespace ConsoleTalkdeskReportGenerator
+namespace WpfTalkdeskReportGenerator
 {
     public interface IExcelReader
     {

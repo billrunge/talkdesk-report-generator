@@ -7,13 +7,14 @@
         mc:Ignorable="d" 
         FontSize="13"
         Title="Talkdesk Reporter" 
-        Height="300" 
-        Width="400" 
+        FontFamily="Segoe UI Light"
+        Height="200" 
+        Width="300" 
         WindowStartupLocation="CenterScreen" >
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20" />
-            <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
@@ -25,7 +26,28 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="20" />
-        </Grid.RowDefinitions>      
+        </Grid.RowDefinitions>  
+        
+        <!--Menu-->
+        <Grid Grid.Row="0" Grid.ColumnSpan="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Menu>
+                <MenuItem Header="File" Grid.Column="0">
+                    <MenuItem x:Name="Exit" Header="Exit"/>
+                </MenuItem>
+                <MenuItem Header="Help" Grid.Column="1">
+                    <MenuItem x:Name="About" Header="About"/>
+                </MenuItem>
+            </Menu>
+        </Grid>
+        
 
         <!-- Row 1 -->
         <Button 
@@ -35,24 +57,37 @@
             Margin="10" >
             Load Schedule Excel
         </Button>
+
+        <Button 
+            x:Name="ClearExcelPath"
+            Grid.Row="1"
+            Grid.Column="2"
+            Margin="0, 10, 0, 10" >Clear</Button>
         
         <TextBlock 
             x:Name="ExcelPathStatus"            
             Grid.Row="1" 
-            Grid.Column="2"
+            Grid.Column="3"
             Margin="10" />
 
         <!-- Row 2 -->
         <Button
+            
             x:Name="SetOutputPath"
             Grid.Row="2" 
             Grid.Column="1" 
             Margin="10">Set Output Folder</Button>
 
+        <Button 
+            x:Name="ClearOutputPath"
+            Grid.Row="2"
+            Grid.Column="2"
+            Margin="0, 10, 0, 10" >Clear</Button>
+        
         <TextBlock 
             x:Name="OutputPathStatus"          
             Grid.Row="2" 
-            Grid.Column="2"
+            Grid.Column="3"
             Margin="10" />
 
         <!-- Row 3 -->
@@ -60,9 +95,8 @@
             x:Name="Begin"
             Grid.Row="3" 
             Grid.Column="1" 
-            Grid.ColumnSpan="4" 
-            Margin="10">Start</Button>      
-
-
+            Grid.ColumnSpan="3" 
+            Margin="10">Start</Button>
+        
     </Grid>
 </Window>

@@ -1,4 +1,4 @@
-﻿namespace ConsoleTalkdeskReportGenerator
+﻿namespace WpfTalkdeskReportGenerator
 {
     class ExcelRowRange
     {

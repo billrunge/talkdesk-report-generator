@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ConsoleTalkdeskReportGenerator
+namespace WpfTalkdeskReportGenerator
 {
     class AgentStatuses
     {

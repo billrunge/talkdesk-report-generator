@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using WpfTalkdeskReportGenerator.Models;
 
 namespace WpfTalkdeskReportGenerator.ViewModels
@@ -26,6 +27,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 SetExcelPathStatus();
                 NotifyOfPropertyChange(() => ExcelPath);
                 NotifyOfPropertyChange(() => CanBegin);
+                NotifyOfPropertyChange(() => CanSetExcelPath);
             }
         }
         public string ExcelPathStatus
@@ -45,6 +47,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _outputPath = value;
                 SetOutputPathStatus();
                 NotifyOfPropertyChange(() => OutputPath);
+                NotifyOfPropertyChange(() => CanSetOutputPath);                
             }
 
         }
@@ -63,6 +66,20 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             get
             {
                 return (string.IsNullOrWhiteSpace(ExcelPath) || string.IsNullOrWhiteSpace(OutputPath)) ? false : true;
+            }
+        }
+        public bool CanSetExcelPath
+        {
+            get
+            {
+                return (string.IsNullOrWhiteSpace(ExcelPath)) ? true : false;
+            }
+        }
+        public bool CanSetOutputPath
+        {
+            get
+            {
+                return (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
             }
         }
 
@@ -99,6 +116,11 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
         }
 
+        public void ClearExcelPath()
+        {
+            ExcelPath = null;
+        }
+
         public void SetOutputPath()
         {
             System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog()
@@ -124,13 +146,43 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
         }
 
+        public void ClearOutputPath()
+        {
+            OutputPath = null;
+        }
+
         public void Begin()
         {
             IDatabase db = new Database();
             IGetStatuses getStatuses = new GetStatuses(db);
-            IGetAgentTimes getAgentTimes = new GetAgentTimesFromExcel();
+            IExcelReader excelReader = new ExcelReader();
 
+            List<AgentStartStops> startStopList = excelReader.GetAgentStartStopList(ExcelPath);
+            IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
 
+            DateTime monday = excelReader.WorkbookMonday;
+
+            List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, monday);
+
+            IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
+            List<AgentStatuses> consolidatedAgentStatuses = consolidateStatuses.Consolidate(agentStatuses);
+
+            IWriteResults writeResults = new WriteResultsToTxtFile();
+
+            writeResults.WriteResults(OutputPath, consolidatedAgentStatuses);
+
+            MessageBox.Show("Job Complete!");
+
+        }
+
+        public void Exit()
+        {
+            Application.Current.Shutdown();
+        }
+
+        public void About()
+        {
+            MessageBox.Show("2018 Relativity ODA LLC.");
 
         }
     }
