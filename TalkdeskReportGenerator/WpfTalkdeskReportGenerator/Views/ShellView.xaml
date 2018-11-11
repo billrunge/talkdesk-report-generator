@@ -28,7 +28,8 @@
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>  
         
-        <!--Menu-->
+        <!-- Row 0/Menu -->
+        
         <Grid Grid.Row="0" Grid.ColumnSpan="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="20" />
@@ -40,6 +41,7 @@
             </Grid.ColumnDefinitions>
             <Menu>
                 <MenuItem Header="File" Grid.Column="0">
+                    <MenuItem x:Name="Settings" Header="Settings" />
                     <MenuItem x:Name="Exit" Header="Exit"/>
                 </MenuItem>
                 <MenuItem Header="Help" Grid.Column="1">
@@ -50,6 +52,7 @@
         
 
         <!-- Row 1 -->
+        
         <Button 
             x:Name="SetExcelPath"
             Grid.Row="1" 
