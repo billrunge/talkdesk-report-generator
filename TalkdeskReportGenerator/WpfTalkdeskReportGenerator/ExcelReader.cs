@@ -1,10 +1,9 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using Microsoft.Office.Interop.Excel;
-using WpfTalkdeskReportGenerator;
 using System.Windows;
 
 namespace WpfTalkdeskReportGenerator
@@ -34,54 +33,39 @@ namespace WpfTalkdeskReportGenerator
             _agentNameColumn = 7;
             _twelveAmColumn = 8;
             _elevenPmColumn = _twelveAmColumn + 23;
-            _rowRangeRegEx = "[0-9][0-9][.][0-9][0-9][.][0-9][0-9][!][aA-zZ]+[0-9]+[:][aA-zZ]+[0-9]+";
+            _rowRangeRegEx = "[0-9]{1,2}[.][0-9]{1,2}[.][0-9][0-9][!][aA-zZ]+[0-9]+[:][aA-zZ]+[0-9]+";
 
         }
 
         public List<AgentStartStops> GetAgentStartStopList(string filePath)
         {
-            MessageBox.Show("Start GetAGentStartStopList");
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
             filePath = filePath.ToLower();
 
             if (filePath.Contains(".xlsb"))
             {
-                var excelApplication = new Microsoft.Office.Interop.Excel.Application
+                Microsoft.Office.Interop.Excel.Application excelApplication = new Microsoft.Office.Interop.Excel.Application
                 {
                     DisplayAlerts = false,
                     AskToUpdateLinks = false
                 };
+
                 Workbook workbook = excelApplication.Workbooks.Open(filePath, XlUpdateLinks.xlUpdateLinksNever, true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
                 filePath = filePath.Replace(".xlsb", ".xlsx");
 
-                Array links = (Array)(object)workbook.LinkSources(XlLink.xlExcelLinks);
-
-                if (links.Length > 0)
+                foreach (Worksheet sheet in workbook.Worksheets)
                 {
-                    for (int i = 1; i <= links.Length; i++)
-                    {
-                        workbook.BreakLink((string)links.GetValue(i), XlLinkType.xlLinkTypeExcelLinks);
-                    }
-                }
-
-                foreach (WorkbookConnection connection in workbook.Connections)
-                {
-                    connection.Delete();                                
-                }
-
-                foreach(Worksheet sheet in workbook.Worksheets)
-                {
-                    if (sheet.Name != "1.14.19")
+                    if (!(Regex.IsMatch(sheet.Name, "[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{2}")))
                     {
                         sheet.Delete();
-                    }                    
+                    }
+
                 }
-
-
                 workbook.SaveAs(filePath, XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
                 workbook.Close(false, Type.Missing, Type.Missing);
                 excelApplication.Quit();
+
             }
             MessageBox.Show("XLSB conversion complete");
 
@@ -128,6 +112,9 @@ namespace WpfTalkdeskReportGenerator
                      * Value returned formatted like:
                      * <workbookName>!<columnLetter><rowNumber>:<columnLetter><rowNumber>
                      */
+
+
+                    MessageBox.Show(rowRangeString);
 
                     if (Regex.IsMatch(rowRangeString, _rowRangeRegEx))
                     {
