@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using Microsoft.Office.Interop.Excel;
 using WpfTalkdeskReportGenerator;
+using System.Windows;
 
 namespace WpfTalkdeskReportGenerator
 {
@@ -38,20 +40,68 @@ namespace WpfTalkdeskReportGenerator
 
         public List<AgentStartStops> GetAgentStartStopList(string filePath)
         {
+            MessageBox.Show("Start GetAGentStartStopList");
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
+
+            filePath = filePath.ToLower();
+
+            if (filePath.Contains(".xlsb"))
+            {
+                var excelApplication = new Microsoft.Office.Interop.Excel.Application
+                {
+                    DisplayAlerts = false,
+                    AskToUpdateLinks = false
+                };
+                Workbook workbook = excelApplication.Workbooks.Open(filePath, XlUpdateLinks.xlUpdateLinksNever, true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                filePath = filePath.Replace(".xlsb", ".xlsx");
+
+                Array links = (Array)(object)workbook.LinkSources(XlLink.xlExcelLinks);
+
+                if (links.Length > 0)
+                {
+                    for (int i = 1; i <= links.Length; i++)
+                    {
+                        workbook.BreakLink((string)links.GetValue(i), XlLinkType.xlLinkTypeExcelLinks);
+                    }
+                }
+
+                foreach (WorkbookConnection connection in workbook.Connections)
+                {
+                    connection.Delete();                                
+                }
+
+                foreach(Worksheet sheet in workbook.Worksheets)
+                {
+                    if (sheet.Name != "1.14.19")
+                    {
+                        sheet.Delete();
+                    }                    
+                }
+
+
+                workbook.SaveAs(filePath, XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                workbook.Close(false, Type.Missing, Type.Missing);
+                excelApplication.Quit();
+            }
+            MessageBox.Show("XLSB conversion complete");
 
             //Using a Filestream so the Excel can be open while operation is occurring
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
+                MessageBox.Show("Filestream starting");
+
                 XLWorkbook excel = new XLWorkbook(fs);
+
+                MessageBox.Show("Getting worksheet count");
                 int workSheetCount = excel.Worksheets.Count;
 
+                MessageBox.Show("Getting last worksheet");
                 //Use the worksheet count to return the last worksheet
                 IXLWorksheet lastWorkSheet = excel.Worksheet(workSheetCount);
 
                 //Get the range of relevant rows for the team in question
 
-
+                MessageBox.Show("Get row range");
                 ExcelRowRange range = GetRowRange(lastWorkSheet);
 
                 for (int i = range.FirstValue; i <= range.SecondValue; i++)

@@ -94,7 +94,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             OpenFileDialog fileDialog = new OpenFileDialog
             {
                 Title = "Open Schedule Excel",
-                Filter = "Excel Files|*.xlsx",
+                Filter = "Excel Files|*.xlsx; *.xlsb",
                 InitialDirectory = @"C:\"
             };
 
