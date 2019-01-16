@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace WpfTalkdeskReportGenerator
 {
-    interface IWriteResults
+    internal interface IWriteResults
     {
         void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses);
     }
 
-    class WriteResultsToTxtFile : IWriteResults
+    internal class WriteResultsToTxtFile : IWriteResults
     {
         public string OutputFileName { get; set; } = "TalkdeskReport.txt";
 
@@ -16,44 +16,18 @@ namespace WpfTalkdeskReportGenerator
         {
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(folderPath + OutputFileName))
             {
-                foreach (var aStatus in consolidatedAgentStatuses)
+                foreach (AgentStatuses aStatus in consolidatedAgentStatuses)
                 {
                     file.WriteLine(aStatus.AgentName);
-                    string mondayString = $"- Monday {Environment.NewLine}";
-                    string tuesdayString = $"- Tuesday {Environment.NewLine}";
-                    string wednesdayString = $"- Wednesday {Environment.NewLine}";
-                    string thursdayString = $"- Thursday {Environment.NewLine}";
-                    string fridayString = $"- Friday {Environment.NewLine}";
+                    string outputString = "";
 
-                    foreach (var status in aStatus.Statuses)
+                    foreach (Status status in aStatus.Statuses)
                     {
-                        switch (status.DayName)
-                        {
-                            case "Monday":
-                                mondayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            case "Tuesday":
-                                tuesdayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            case "Wednesday":
-                                wednesdayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            case "Thursday":
-                                thursdayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            case "Friday":
-                                fridayString += $" - {status.StatusLabel} : {status.StatusTime / 60} {Environment.NewLine}";
-                                break;
-                            default:
-                                break;
-                        }
+
+                        outputString += $" - {status.StatusLabel} : {((decimal)status.StatusTime/60).ToString("0.##")} {Environment.NewLine}";
 
                     }
-                    file.WriteLine(mondayString);
-                    file.WriteLine(tuesdayString);
-                    file.WriteLine(wednesdayString);
-                    file.WriteLine(thursdayString);
-                    file.WriteLine(fridayString);
+                    file.WriteLine(outputString);
                 }
 
             }

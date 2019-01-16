@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 
 namespace WpfTalkdeskReportGenerator
 {
-    interface IGetStatusesFromStartStops
+    internal interface IGetStatusesFromStartStops
     {
         List<AgentStatuses> GetAgentStatusesList(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime monday);
     }
-    class GetStatusesFromStartStops : IGetStatusesFromStartStops
+
+    internal class GetStatusesFromStartStops : IGetStatusesFromStartStops
     {
         private readonly TimeZoneInfo _excelTimeZone;
 
@@ -18,44 +18,32 @@ namespace WpfTalkdeskReportGenerator
 
         }
 
-        public List<AgentStatuses> GetAgentStatusesList(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime monday)
+        public List<AgentStatuses> GetAgentStatusesList(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day)
         {
             List<AgentStatuses> agentStatusesList = new List<AgentStatuses>();
-            monday = monday.Date;
-            if (monday.DayOfWeek == DayOfWeek.Monday)
+
+            int utcOffset = Math.Abs(_excelTimeZone.GetUtcOffset(day).Hours);
+
+            foreach (AgentStartStops agentStartStop in agentStartStops)
             {
+                string userId = getStatuses.GetUserIdFromName(agentStartStop.AgentName);
 
-                int utcOffset = Math.Abs(_excelTimeZone.GetUtcOffset(monday).Hours);
-
-                foreach (AgentStartStops agentStartStop in agentStartStops)
+                AgentStatuses agentStatuses = new AgentStatuses()
                 {
-                    string userId = getStatuses.GetUserIdFromName(agentStartStop.AgentName);
+                    AgentName = agentStartStop.AgentName
+                };
 
-                    AgentStatuses agentStatuses = new AgentStatuses()
-                    {
-                        AgentName = agentStartStop.AgentName
-                    };
+                foreach (StartStop startStop in agentStartStop.StartStopList)
+                {
+                    DateTime startTime = day.Add(startStop.Start);
+                    DateTime stopTime = day.Add(startStop.Stop);
 
-                    foreach (StartStop startStop in agentStartStop.StartStopList)
-                    {
-
-                        for (int mondayOffset = 0; mondayOffset < 5; mondayOffset++)
-                        {
-                            DateTime day = monday.AddDays(mondayOffset);
-                            DateTime startTime = day.Add(startStop.Start);
-                            DateTime stopTime = day.Add(startStop.Stop);
-
-                            List<Status> agentStatus = getStatuses.GetStatusesList(userId, startTime, stopTime, utcOffset);
-                            agentStatuses.Statuses.AddRange(agentStatus);
-                        }
-                    }
-                    agentStatusesList.Add(agentStatuses);
+                    List<Status> agentStatus = getStatuses.GetStatusesList(userId, startTime, stopTime, utcOffset);
+                    agentStatuses.Statuses.AddRange(agentStatus);
                 }
+                agentStatusesList.Add(agentStatuses);
             }
-            else
-            {
-                throw new ArgumentException($"{monday.ToString()} is not a Monday");
-            }
+
             return agentStatusesList;
         }
 

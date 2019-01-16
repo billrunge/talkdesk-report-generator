@@ -160,9 +160,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             List<AgentStartStops> startStopList = excelReader.GetAgentStartStopList(ExcelPath);
             IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
 
-            DateTime monday = excelReader.WorkbookMonday;
+            DateTime day = excelReader.WorkbookDay;
 
-            List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, monday);
+            List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, day);
 
             IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
             List<AgentStatuses> consolidatedAgentStatuses = consolidateStatuses.Consolidate(agentStatuses);

@@ -11,30 +11,27 @@ namespace WpfTalkdeskReportGenerator
     public interface IExcelReader
     {
         List<AgentStartStops> GetAgentStartStopList(string filePath);
-        DateTime WorkbookMonday { get; }
+        DateTime WorkbookDay { get; }
     }
 
     public class ExcelReader : IExcelReader
     {
         private readonly string _teamName = "RelativityOne";
         private readonly string _phoneTimeCellFill;
-        private readonly string _rowRangeRegEx;
         private readonly int _teamNameColumn;
         private readonly int _agentNameColumn;
         private readonly int _twelveAmColumn;
         private readonly int _elevenPmColumn;
-        public DateTime WorkbookMonday { get; private set; }
+        public DateTime WorkbookDay { get; private set; }
 
         public ExcelReader()
         {
             _phoneTimeCellFill = "Solid Color Theme: Accent1, Tint: 0.799981688894314";
             _teamName = "RelativityOne";
-            _teamNameColumn = 2;
+            _teamNameColumn = 5;
             _agentNameColumn = 7;
             _twelveAmColumn = 8;
             _elevenPmColumn = _twelveAmColumn + 23;
-            _rowRangeRegEx = "[0-9]{1,2}[.][0-9]{1,2}[.][0-9][0-9][!][aA-zZ]+[0-9]+[:][aA-zZ]+[0-9]+";
-
         }
 
         public List<AgentStartStops> GetAgentStartStopList(string filePath)
@@ -65,28 +62,22 @@ namespace WpfTalkdeskReportGenerator
                 workbook.SaveAs(filePath, XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
                 workbook.Close(false, Type.Missing, Type.Missing);
                 excelApplication.Quit();
-
             }
-            MessageBox.Show("XLSB conversion complete");
 
             //Using a Filestream so the Excel can be open while operation is occurring
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                MessageBox.Show("Filestream starting");
-
                 XLWorkbook excel = new XLWorkbook(fs);
-
-                MessageBox.Show("Getting worksheet count");
                 int workSheetCount = excel.Worksheets.Count;
 
-                MessageBox.Show("Getting last worksheet");
                 //Use the worksheet count to return the last worksheet
                 IXLWorksheet lastWorkSheet = excel.Worksheet(workSheetCount);
 
                 //Get the range of relevant rows for the team in question
-
-                MessageBox.Show("Get row range");
                 ExcelRowRange range = GetRowRange(lastWorkSheet);
+                
+                //Extract date from Worksheet name
+                SetWorksheetDate(lastWorkSheet);
 
                 for (int i = range.FirstValue; i <= range.SecondValue; i++)
                 {
@@ -102,86 +93,54 @@ namespace WpfTalkdeskReportGenerator
             ExcelRowRange excelRowRange = new ExcelRowRange();
             IXLRows col = worksheet.RowsUsed();
 
+            int firstValue = 2147483647;
+            int secondValue = -2147483648;
+
             foreach (IXLRow row in col)
             {
-                if (row.Cell(_teamNameColumn).Value.ToString().Trim() == _teamName)
+                bool isTeamRow = (row.Cell(_teamNameColumn).Value.ToString().Trim() == _teamName);
+
+                if (!int.TryParse(Regex.Replace(row.Cell(_teamNameColumn).Address.ToString(), "[^0-9.]", ""), out int currentRowAddress))
                 {
-                    string rowRangeString = row.Cell(_teamNameColumn).MergedRange().ToString();
+                    throw new InvalidCastException("Unable to parse row int from cell address resturned from Excel");
+                }
 
-                    /* 
-                     * Value returned formatted like:
-                     * <workbookName>!<columnLetter><rowNumber>:<columnLetter><rowNumber>
-                     */
-
-
-                    MessageBox.Show(rowRangeString);
-
-                    if (Regex.IsMatch(rowRangeString, _rowRangeRegEx))
-                    {
-
-                        //Extract workbook date so we can determine Monday later
-                        string dateString = rowRangeString.Split('!')[0];
-
-                        if (!int.TryParse(dateString.Split('.')[0], out int month))
-                        {
-                            throw new FormatException($"Unable to parse {dateString.Split('.')[0]} to month int");
-                        }
-
-                        if (!int.TryParse(dateString.Split('.')[1], out int day))
-                        {
-                            throw new FormatException($"Unable to parse {dateString.Split('.')[1]} to day int");
-                        }
-
-                        if (!int.TryParse($"20{dateString.Split('.')[2]}", out int year))
-                        {
-                            throw new FormatException($"Unable to parse {dateString.Split('.')[2]} to year int");
-                        }
-
-                        DateTime workbookDay = new DateTime(year, month, day);
-
-                        switch (workbookDay.DayOfWeek)
-                        {
-                            case DayOfWeek.Monday:
-                                WorkbookMonday = workbookDay;
-                                break;
-                            case DayOfWeek.Tuesday:
-                                WorkbookMonday = workbookDay.AddDays(-1);
-                                break;
-                            case DayOfWeek.Wednesday:
-                                WorkbookMonday = workbookDay.AddDays(-2);
-                                break;
-                            case DayOfWeek.Thursday:
-                                WorkbookMonday = workbookDay.AddDays(-3);
-                                break;
-                            case DayOfWeek.Friday:
-                                WorkbookMonday = workbookDay.AddDays(-4);
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException($"{workbookDay.DayOfWeek.ToString()} is not a valid weekday");
-                        }
-
-                        rowRangeString = rowRangeString.Substring(rowRangeString.IndexOf("!") + 1);
-
-                        if (!int.TryParse(Regex.Replace(rowRangeString.Split(':')[0], "[^0-9]", ""), out int firstValue))
-                        {
-                            throw new FormatException($"Unable to parse {rowRangeString.Split(':')[0]} to firstValue int");
-                        }
-
-                        if (!int.TryParse(Regex.Replace(rowRangeString.Split(':')[1], "[^0-9]", ""), out int secondValue))
-                        {
-                            throw new FormatException($"Unable to parse {rowRangeString.Split(':')[1]} to secondValue int");
-                        }
-
-                        excelRowRange.FirstValue = firstValue;
-                        excelRowRange.SecondValue = secondValue;
-                    }
-                    else
-                    {
-                        throw new FormatException($"The row range string retrieved from the Excel was invalid. String received: {rowRangeString}");
-                    }
+                if (isTeamRow && currentRowAddress < firstValue)
+                {
+                    firstValue = currentRowAddress;
+                }
+                else if (isTeamRow && currentRowAddress > secondValue)
+                {
+                    secondValue = currentRowAddress;
                 }
             }
+
+            excelRowRange.FirstValue = firstValue;
+            excelRowRange.SecondValue = secondValue;
             return excelRowRange;
+        }
+
+        private void SetWorksheetDate(IXLWorksheet worksheet)
+        {
+            //Extract workbook date so we can determine Monday later
+            string dateString = worksheet.Name;
+
+            if (!int.TryParse(dateString.Split('.')[0], out int month))
+            {
+                throw new FormatException($"Unable to parse {dateString.Split('.')[0]} to month int");
+            }
+
+            if (!int.TryParse(dateString.Split('.')[1], out int day))
+            {
+                throw new FormatException($"Unable to parse {dateString.Split('.')[1]} to day int");
+            }
+
+            if (!int.TryParse($"20{dateString.Split('.')[2]}", out int year))
+            {
+                throw new FormatException($"Unable to parse {dateString.Split('.')[2]} to year int");
+            }
+
+            WorkbookDay = new DateTime(year, month, day); 
         }
 
         private AgentStartStops GetAgentStartStopFromRow(IXLWorksheet worksheet, int rowNumber)
