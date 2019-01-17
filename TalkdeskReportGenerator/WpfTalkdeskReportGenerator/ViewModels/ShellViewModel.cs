@@ -155,12 +155,19 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         {
             IDatabase db = new Database();
             IGetStatuses getStatuses = new GetStatuses(db);
-            IExcelReader excelReader = new ExcelReader();
+            ExcelReader excelReader = new ExcelReader();
 
-            List<AgentStartStops> startStopList = excelReader.GetAgentStartStopList(ExcelPath);
+            string filePath = excelReader.CreateLightweightExcel(ExcelPath);
+
+            List<string> teamNames = excelReader.GetTeamNames(filePath);
+
+            List<AgentStartStops> startStopList = excelReader.GetAgentStartStopList(filePath);
+            excelReader.DeleteExcel(filePath);
             IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
 
             DateTime day = excelReader.WorkbookDay;
+
+            
 
             List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, day);
 

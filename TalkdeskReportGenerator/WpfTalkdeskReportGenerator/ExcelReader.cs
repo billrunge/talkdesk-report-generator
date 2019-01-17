@@ -5,10 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media;
 
 namespace WpfTalkdeskReportGenerator
 {
@@ -43,23 +39,14 @@ namespace WpfTalkdeskReportGenerator
         {
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
-            string lwFilePath = CreateLightweightExcel(filePath);
-
             //Using a Filestream so the Excel can be open while operation is occurring
-            using (FileStream fs = new FileStream(lwFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 XLWorkbook excel = new XLWorkbook(fs);
                 int workSheetCount = excel.Worksheets.Count;
 
                 //Use the worksheet count to return the last worksheet
                 IXLWorksheet lastWorkSheet = excel.Worksheet(workSheetCount);
-
-
-
-                List<string> teamNames = GetTeamNames(lastWorkSheet);
-                TeamSelector(teamNames);
-
-
 
                 //Get the range of relevant rows for the team in question
                 ExcelRowRange range = GetRowRange(lastWorkSheet);
@@ -74,12 +61,39 @@ namespace WpfTalkdeskReportGenerator
                 }
 
             }
-
-            File.Delete(lwFilePath);
             return startStopList;
         }
 
-        private string CreateLightweightExcel(string filePath)
+        public List<string> GetTeamNames(string filePath)
+        {
+            List<string> teamNames = new List<string>();
+
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                XLWorkbook excel = new XLWorkbook(fs);
+                int workSheetCount = excel.Worksheets.Count;
+
+                //Use the worksheet count to return the last worksheet
+                IXLWorksheet worksheet = excel.Worksheet(workSheetCount);
+
+                IXLRows col = worksheet.RowsUsed();
+
+                foreach (IXLRow row in col)
+                {
+                    string cellValue = row.Cell(_teamNameColumn).Value.ToString().Trim();
+                    if (!(string.IsNullOrEmpty(cellValue) || cellValue == "Team"))
+                    {
+                        teamNames.Add(cellValue);
+                    }
+                }
+
+            }
+            return teamNames;
+
+        }
+
+
+        public string CreateLightweightExcel(string filePath)
         {
             filePath = filePath.ToLower();
 
@@ -107,7 +121,7 @@ namespace WpfTalkdeskReportGenerator
             return filePath;
         }
 
-        private List<string> GetTeamNames(IXLWorksheet worksheet)
+        private List<string> GetTeamNamesOld(IXLWorksheet worksheet)
         {
             List<string> teamNames = new List<string>();
 
@@ -116,7 +130,7 @@ namespace WpfTalkdeskReportGenerator
             foreach (IXLRow row in col)
             {
                 string cellValue = row.Cell(_teamNameColumn).Value.ToString().Trim();
-                if (!(String.IsNullOrEmpty(cellValue) || cellValue == "Team"))
+                if (!(string.IsNullOrEmpty(cellValue) || cellValue == "Team"))
                 {
                     teamNames.Add(cellValue);
                 }
@@ -228,18 +242,11 @@ namespace WpfTalkdeskReportGenerator
             }
         }
 
-
-        private string TeamSelector(List<string> teamNames)
+        public void DeleteExcel(string filePath)
         {
-            Popup codePopup = new Popup();
-            TextBlock popupText = new TextBlock();
-            popupText.Text = "Popup Text";
-            popupText.Background = Brushes.LightBlue;
-            popupText.Foreground = Brushes.Blue;
-            codePopup.Child = popupText;
-
-            return "";
+            File.Delete(filePath);
         }
+
 
     }
 }
