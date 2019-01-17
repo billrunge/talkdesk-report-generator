@@ -5,17 +5,17 @@ namespace WpfTalkdeskReportGenerator
 {
     internal interface IWriteResults
     {
-        void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, DateTime workbookDate);
+        void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, string teamName, DateTime workbookDate);
     }
 
     internal class WriteResultsToTxtFile : IWriteResults
     {
-        public void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, DateTime workbookDate)
+        public void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, string teamName, DateTime workbookDate)
         {
 
             string date = workbookDate.ToShortDateString().Replace(@"/", "-");
 
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter($"{folderPath}TalkDeskReport-{date}.txt"))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter($"{folderPath}TalkDesk - {teamName} - {date}.txt"))
             {
                 foreach (AgentStatuses aStatus in consolidatedAgentStatuses)
                 {

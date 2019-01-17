@@ -194,7 +194,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             
 
 
-            writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, excelReader.WorkbookDay);
+            writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedTeam, excelReader.WorkbookDay);
 
             MessageBox.Show("Job Complete!");
 
