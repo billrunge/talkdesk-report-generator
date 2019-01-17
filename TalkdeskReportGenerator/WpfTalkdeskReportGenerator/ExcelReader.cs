@@ -3,8 +3,12 @@ using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 
 namespace WpfTalkdeskReportGenerator
 {
@@ -22,6 +26,7 @@ namespace WpfTalkdeskReportGenerator
         private readonly int _agentNameColumn;
         private readonly int _twelveAmColumn;
         private readonly int _elevenPmColumn;
+        private Workbook workbook;
         public DateTime WorkbookDay { get; private set; }
 
         public ExcelReader()
@@ -38,34 +43,10 @@ namespace WpfTalkdeskReportGenerator
         {
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
-            filePath = filePath.ToLower();
-
-            if (filePath.Contains(".xlsb"))
-            {
-                Microsoft.Office.Interop.Excel.Application excelApplication = new Microsoft.Office.Interop.Excel.Application
-                {
-                    DisplayAlerts = false,
-                    AskToUpdateLinks = false
-                };
-
-                Workbook workbook = excelApplication.Workbooks.Open(filePath, XlUpdateLinks.xlUpdateLinksNever, true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-                filePath = filePath.Replace(".xlsb", ".xlsx");
-
-                foreach (Worksheet sheet in workbook.Worksheets)
-                {
-                    if (!(Regex.IsMatch(sheet.Name, "[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{2}")))
-                    {
-                        sheet.Delete();
-                    }
-
-                }
-                workbook.SaveAs(filePath, XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-                workbook.Close(false, Type.Missing, Type.Missing);
-                excelApplication.Quit();
-            }
+            string lwFilePath = CreateLightweightExcel(filePath);
 
             //Using a Filestream so the Excel can be open while operation is occurring
-            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (FileStream fs = new FileStream(lwFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 XLWorkbook excel = new XLWorkbook(fs);
                 int workSheetCount = excel.Worksheets.Count;
@@ -73,9 +54,16 @@ namespace WpfTalkdeskReportGenerator
                 //Use the worksheet count to return the last worksheet
                 IXLWorksheet lastWorkSheet = excel.Worksheet(workSheetCount);
 
+
+
+                List<string> teamNames = GetTeamNames(lastWorkSheet);
+                TeamSelector(teamNames);
+
+
+
                 //Get the range of relevant rows for the team in question
                 ExcelRowRange range = GetRowRange(lastWorkSheet);
-                
+
                 //Extract date from Worksheet name
                 SetWorksheetDate(lastWorkSheet);
 
@@ -84,8 +72,59 @@ namespace WpfTalkdeskReportGenerator
                     AgentStartStops agentStartStop = GetAgentStartStopFromRow(lastWorkSheet, i);
                     startStopList.Add(agentStartStop);
                 }
-                return startStopList;
+
             }
+
+            File.Delete(lwFilePath);
+            return startStopList;
+        }
+
+        private string CreateLightweightExcel(string filePath)
+        {
+            filePath = filePath.ToLower();
+
+            Microsoft.Office.Interop.Excel.Application excelApplication = new Microsoft.Office.Interop.Excel.Application
+            {
+                DisplayAlerts = false,
+                AskToUpdateLinks = false
+            };
+
+            workbook = excelApplication.Workbooks.Open(filePath, XlUpdateLinks.xlUpdateLinksNever, true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+
+            filePath = $"{Path.GetDirectoryName(filePath)}\\{Guid.NewGuid().ToString()}.xlsx";
+
+            foreach (Worksheet sheet in workbook.Worksheets)
+            {
+                if (!(Regex.IsMatch(sheet.Name, "[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{2}")))
+                {
+                    sheet.Delete();
+                }
+            }
+            workbook.SaveAs(filePath, XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+            workbook.Close(false, Type.Missing, Type.Missing);
+            excelApplication.Quit();
+
+            return filePath;
+        }
+
+        private List<string> GetTeamNames(IXLWorksheet worksheet)
+        {
+            List<string> teamNames = new List<string>();
+
+            IXLRows col = worksheet.RowsUsed();
+
+            foreach (IXLRow row in col)
+            {
+                string cellValue = row.Cell(_teamNameColumn).Value.ToString().Trim();
+                if (!(String.IsNullOrEmpty(cellValue) || cellValue == "Team"))
+                {
+                    teamNames.Add(cellValue);
+                }
+            }
+
+            teamNames = teamNames.Distinct().ToList();
+
+            return teamNames;
         }
 
         private ExcelRowRange GetRowRange(IXLWorksheet worksheet)
@@ -95,6 +134,8 @@ namespace WpfTalkdeskReportGenerator
 
             int firstValue = 2147483647;
             int secondValue = -2147483648;
+
+
 
             foreach (IXLRow row in col)
             {
@@ -140,7 +181,7 @@ namespace WpfTalkdeskReportGenerator
                 throw new FormatException($"Unable to parse {dateString.Split('.')[2]} to year int");
             }
 
-            WorkbookDay = new DateTime(year, month, day); 
+            WorkbookDay = new DateTime(year, month, day);
         }
 
         private AgentStartStops GetAgentStartStopFromRow(IXLWorksheet worksheet, int rowNumber)
@@ -187,9 +228,19 @@ namespace WpfTalkdeskReportGenerator
             }
         }
 
+
+        private string TeamSelector(List<string> teamNames)
+        {
+            Popup codePopup = new Popup();
+            TextBlock popupText = new TextBlock();
+            popupText.Text = "Popup Text";
+            popupText.Background = Brushes.LightBlue;
+            popupText.Foreground = Brushes.Blue;
+            codePopup.Child = popupText;
+
+            return "";
+        }
+
     }
 }
-
-
-
 
