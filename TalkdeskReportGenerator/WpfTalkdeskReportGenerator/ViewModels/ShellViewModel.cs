@@ -2,12 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using WpfTalkdeskReportGenerator.Models;
 
 namespace WpfTalkdeskReportGenerator.ViewModels
 {
@@ -17,22 +12,25 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         private string _excelPathStatus;
         private string _outputPath;
         private string _outputPathStatus;
+        private string _status;
+        private string _selectedTeam;
+        private List<string> _teamNames;
 
         public string ExcelPath
         {
-            get { return _excelPath; }
+            get => _excelPath;
             set
             {
                 _excelPath = value;
                 SetExcelPathStatus();
                 NotifyOfPropertyChange(() => ExcelPath);
-                NotifyOfPropertyChange(() => CanBegin);
+                NotifyOfPropertyChange(() => CanGetTeamNames);
                 NotifyOfPropertyChange(() => CanSetExcelPath);
             }
         }
         public string ExcelPathStatus
         {
-            get { return _excelPathStatus; }
+            get => _excelPathStatus;
             set
             {
                 _excelPathStatus = value;
@@ -41,52 +39,69 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         }
         public string OutputPath
         {
-            get { return _outputPath; }
+            get => _outputPath;
             set
             {
                 _outputPath = value;
                 SetOutputPathStatus();
                 NotifyOfPropertyChange(() => OutputPath);
-                NotifyOfPropertyChange(() => CanSetOutputPath);                
+                NotifyOfPropertyChange(() => CanSetOutputPath);
             }
 
         }
         public string OutputPathStatus
         {
-            get { return _outputPathStatus;  }
+            get => _outputPathStatus;
             set
             {
                 _outputPathStatus = value;
                 NotifyOfPropertyChange(() => OutputPathStatus);
-                NotifyOfPropertyChange(() => CanBegin);
+                NotifyOfPropertyChange(() => CanGetTeamNames);
             }
         }
-        public bool CanBegin
+        public string FilePath { get; set; }
+        public string Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                NotifyOfPropertyChange(() => Status);
+            }
+        }
+        public string SelectedTeam
         {
             get
             {
-                return (string.IsNullOrWhiteSpace(ExcelPath) || string.IsNullOrWhiteSpace(OutputPath)) ? false : true;
+                return _selectedTeam;
+            }
+            set
+            {
+                _selectedTeam = value;
+                NotifyOfPropertyChange(() => SelectedTeam);
             }
         }
-        public bool CanSetExcelPath
+        public List<string> TeamNames
         {
-            get
+            get => _teamNames;
+            set
             {
-                return (string.IsNullOrWhiteSpace(ExcelPath)) ? true : false;
-            }
-        }
-        public bool CanSetOutputPath
-        {
-            get
-            {
-                return (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
+                _teamNames = value;
+                NotifyOfPropertyChange(() => CanGenerateReport);
+                NotifyOfPropertyChange(() => TeamNames);
             }
         }
 
+        public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(ExcelPath) || string.IsNullOrWhiteSpace(OutputPath)) ? false : true;
+        public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(ExcelPath)) ? true : false;
+        public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
+        public bool CanGenerateReport => (TeamNames.Count > 0) ? true : false;
+
         public ShellViewModel()
         {
+            TeamNames = new List<string>();
             SetExcelPathStatus();
-            SetOutputPathStatus();                       
+            SetOutputPathStatus();
         }
 
         public void SetExcelPath()
@@ -101,7 +116,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             if (fileDialog.ShowDialog() == true)
             {
                 ExcelPath = fileDialog.FileName.ToString();
-            }
+            }            
+
         }
 
         public void SetExcelPathStatus()
@@ -151,32 +167,34 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             OutputPath = null;
         }
 
-        public void Begin()
+        public void GetTeamNames()
+        {
+            ExcelReader excelReader = new ExcelReader();
+            FilePath = excelReader.CreateLightweightExcel(ExcelPath);
+            TeamNames = excelReader.GetTeamNames(FilePath);
+        }
+
+        public void GenerateReport()
         {
             IDatabase db = new Database();
             IGetStatuses getStatuses = new GetStatuses(db);
             ExcelReader excelReader = new ExcelReader();
-
-            string filePath = excelReader.CreateLightweightExcel(ExcelPath);
-
-            List<string> teamNames = excelReader.GetTeamNames(filePath);
-
-            List<AgentStartStops> startStopList = excelReader.GetAgentStartStopList(filePath);
-            excelReader.DeleteExcel(filePath);
+            List<AgentStartStops> startStopList = excelReader.GetAgentStartStopList(FilePath, SelectedTeam);
+            excelReader.DeleteExcel(FilePath);
             IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
 
             DateTime day = excelReader.WorkbookDay;
-
-            
 
             List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, day);
 
             IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
             List<AgentStatuses> consolidatedAgentStatuses = consolidateStatuses.Consolidate(agentStatuses);
 
-            IWriteResults writeResults = new WriteResultsToTxtFile();
+            IWriteResults writeResults = new WriteResultsToTxtFile();        
+            
 
-            writeResults.WriteResults(OutputPath, consolidatedAgentStatuses);
+
+            writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, excelReader.WorkbookDay);
 
             MessageBox.Show("Job Complete!");
 
@@ -190,7 +208,6 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         public void About()
         {
             MessageBox.Show("2018 Relativity ODA LLC.");
-
         }
     }
 }

@@ -8,7 +8,7 @@
         FontSize="13"
         Title="Talkdesk Reporter" 
         FontFamily="Segoe UI Light"
-        Height="200" 
+        Height="285" 
         Width="300" 
         WindowStartupLocation="CenterScreen" >
     
@@ -22,6 +22,8 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
@@ -95,11 +97,43 @@
 
         <!-- Row 3 -->
         <Button
-            x:Name="Begin"
+            x:Name="GetTeamNames"
             Grid.Row="3" 
             Grid.Column="1" 
             Grid.ColumnSpan="3" 
-            Margin="10">Start</Button>
+            Margin="10">Get Team Names</Button>
         
+        <!-- Row 4 -->
+
+        <ComboBox x:Name="SelectTeamName"
+                  ItemsSource="{Binding TeamNames}"
+                  SelectedItem="{Binding SelectedTeam}"
+                  Text="Select Team Name"
+                  Grid.Row="4"
+                  Grid.Column="1"
+                  Grid.ColumnSpan="3"
+                  Margin="10"
+                  IsEditable="True" 
+                  IsReadOnly="True">
+        </ComboBox>
+
+        <!-- Row 5 -->
+        <Button
+            x:Name="GenerateReport"
+            Grid.Row="5" 
+            Grid.Column="1" 
+            Grid.ColumnSpan="3" 
+            Margin="10">Generate Report</Button>
+
+        <!-- Row 6/Bottom Status -->
+        <TextBlock
+            x:Name="Status"
+            Grid.Row="6"
+            Grid.Column="1"
+            Grid.ColumnSpan="3"
+            Margin="10, 0, 0, 0">
+        </TextBlock>
+
+
     </Grid>
 </Window>

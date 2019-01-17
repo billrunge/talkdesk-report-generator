@@ -5,18 +5,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace WpfTalkdeskReportGenerator
 {
     public interface IExcelReader
     {
-        List<AgentStartStops> GetAgentStartStopList(string filePath);
+        List<AgentStartStops> GetAgentStartStopList(string filePath, string teamName);
         DateTime WorkbookDay { get; }
     }
 
     public class ExcelReader : IExcelReader
     {
-        private readonly string _teamName = "RelativityOne";
+        private string _teamName;
         private readonly string _phoneTimeCellFill;
         private readonly int _teamNameColumn;
         private readonly int _agentNameColumn;
@@ -28,15 +29,16 @@ namespace WpfTalkdeskReportGenerator
         public ExcelReader()
         {
             _phoneTimeCellFill = "Solid Color Theme: Accent1, Tint: 0.799981688894314";
-            _teamName = "RelativityOne";
             _teamNameColumn = 5;
             _agentNameColumn = 7;
             _twelveAmColumn = 8;
             _elevenPmColumn = _twelveAmColumn + 23;
         }
 
-        public List<AgentStartStops> GetAgentStartStopList(string filePath)
+        public List<AgentStartStops> GetAgentStartStopList(string filePath, string teamName)
         {
+            _teamName = teamName;
+
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
             //Using a Filestream so the Excel can be open while operation is occurring
@@ -48,15 +50,18 @@ namespace WpfTalkdeskReportGenerator
                 //Use the worksheet count to return the last worksheet
                 IXLWorksheet lastWorkSheet = excel.Worksheet(workSheetCount);
 
-                //Get the range of relevant rows for the team in question
-                ExcelRowRange range = GetRowRange(lastWorkSheet);
+                //Get the relevant rows for the team in question
+
+                //ExcelRowRange range = GetRowRange(lastWorkSheet);
+
+                List<int> teamRows = GetTeamRows(lastWorkSheet);
 
                 //Extract date from Worksheet name
                 SetWorksheetDate(lastWorkSheet);
 
-                for (int i = range.FirstValue; i <= range.SecondValue; i++)
+                foreach (int row in teamRows)
                 {
-                    AgentStartStops agentStartStop = GetAgentStartStopFromRow(lastWorkSheet, i);
+                    AgentStartStops agentStartStop = GetAgentStartStopFromRow(lastWorkSheet, row);
                     startStopList.Add(agentStartStop);
                 }
 
@@ -86,12 +91,9 @@ namespace WpfTalkdeskReportGenerator
                         teamNames.Add(cellValue);
                     }
                 }
-
             }
-            return teamNames;
-
+            return teamNames.Distinct().ToList();
         }
-
 
         public string CreateLightweightExcel(string filePath)
         {
@@ -121,59 +123,67 @@ namespace WpfTalkdeskReportGenerator
             return filePath;
         }
 
-        private List<string> GetTeamNamesOld(IXLWorksheet worksheet)
-        {
-            List<string> teamNames = new List<string>();
 
+        //private ExcelRowRange GetRowRange(IXLWorksheet worksheet)
+        //{
+        //    ExcelRowRange excelRowRange = new ExcelRowRange();
+        //    IXLRows col = worksheet.RowsUsed();
+
+        //    int firstValue = 2147483647;
+        //    int secondValue = -2147483648;
+
+
+
+        //    foreach (IXLRow row in col)
+        //    {
+        //        bool isTeamRow = (row.Cell(_teamNameColumn).Value.ToString().Trim() == _teamName);
+
+        //        if (!int.TryParse(Regex.Replace(row.Cell(_teamNameColumn).Address.ToString(), "[^0-9.]", ""), out int currentRowAddress))
+        //        {
+        //            throw new InvalidCastException("Unable to parse row int from cell address resturned from Excel");
+        //        }
+
+        //        if (isTeamRow && currentRowAddress < firstValue)
+        //        {
+        //            firstValue = currentRowAddress;
+        //        }
+        //        else if (isTeamRow && currentRowAddress > secondValue)
+        //        {
+        //            secondValue = currentRowAddress;
+        //        }
+        //    }
+
+        //    excelRowRange.FirstValue = firstValue;
+        //    excelRowRange.SecondValue = secondValue;
+        //    return excelRowRange;
+        //}
+
+        private List<int> GetTeamRows(IXLWorksheet worksheet)
+        {
+            List<int> teamRows = new List<int>();
             IXLRows col = worksheet.RowsUsed();
+
 
             foreach (IXLRow row in col)
             {
-                string cellValue = row.Cell(_teamNameColumn).Value.ToString().Trim();
-                if (!(string.IsNullOrEmpty(cellValue) || cellValue == "Team"))
-                {
-                    teamNames.Add(cellValue);
-                }
-            }
-
-            teamNames = teamNames.Distinct().ToList();
-
-            return teamNames;
-        }
-
-        private ExcelRowRange GetRowRange(IXLWorksheet worksheet)
-        {
-            ExcelRowRange excelRowRange = new ExcelRowRange();
-            IXLRows col = worksheet.RowsUsed();
-
-            int firstValue = 2147483647;
-            int secondValue = -2147483648;
-
-
-
-            foreach (IXLRow row in col)
-            {
-                bool isTeamRow = (row.Cell(_teamNameColumn).Value.ToString().Trim() == _teamName);
-
                 if (!int.TryParse(Regex.Replace(row.Cell(_teamNameColumn).Address.ToString(), "[^0-9.]", ""), out int currentRowAddress))
                 {
                     throw new InvalidCastException("Unable to parse row int from cell address resturned from Excel");
                 }
 
-                if (isTeamRow && currentRowAddress < firstValue)
+                if (row.Cell(_teamNameColumn).Value.ToString().Trim() == _teamName)
                 {
-                    firstValue = currentRowAddress;
+                    teamRows.Add(currentRowAddress);
                 }
-                else if (isTeamRow && currentRowAddress > secondValue)
-                {
-                    secondValue = currentRowAddress;
-                }
+
             }
 
-            excelRowRange.FirstValue = firstValue;
-            excelRowRange.SecondValue = secondValue;
-            return excelRowRange;
+            return teamRows;
+
         }
+
+
+
 
         private void SetWorksheetDate(IXLWorksheet worksheet)
         {
