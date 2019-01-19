@@ -14,6 +14,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         private string _outputPath;
         private string _status;
         private string _selectedTeam;
+        private bool _getTeamNamesRan;
         private List<string> _teamNames;
 
         public string InputExcelPath
@@ -60,6 +61,18 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 NotifyOfPropertyChange(() => CanGenerateReport);
             }
         }
+        public bool GetTeamNamesRan
+        {
+            get
+            {
+                return _getTeamNamesRan;
+            }
+            set
+            {
+                _getTeamNamesRan = value;
+                NotifyOfPropertyChange(() => CanGetTeamNames);
+            }
+        }
         public List<string> TeamNames
         {
             get => _teamNames;
@@ -72,7 +85,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
         }
 
-        public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(InputExcelPath) || string.IsNullOrWhiteSpace(OutputPath) || TeamNames.Count > 0) ? false : true;
+        public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(InputExcelPath) || string.IsNullOrWhiteSpace(OutputPath) || TeamNames.Count > 0 || GetTeamNamesRan) ? false : true;
         public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(InputExcelPath)) ? true : false;
         public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
         public bool CanSetTeamName => (TeamNames.Count > 0) ? true : false;
@@ -81,6 +94,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         public ShellViewModel()
         {
             TeamNames = new List<string>();
+            GetTeamNamesRan = false;
         }
 
         public void SetExcelPath()
@@ -105,6 +119,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             OutputPath = null;
             SelectedTeam = null;
             TeamNames = new List<string>();
+            GetTeamNamesRan = false;
 
             if (!string.IsNullOrWhiteSpace(TempExcelPath))
             {
@@ -131,7 +146,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
         public async Task GetTeamNamesAsync()
         {
-            ExcelReader excelReader = new ExcelReader();
+            GetTeamNamesRan = true;
+            ExcelReader excelReader = await Task.Run(() => new ExcelReader());
             Status = "Generating a working copy Excel...";
             TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPath);
             Status = "Getting team names from Excel...";
