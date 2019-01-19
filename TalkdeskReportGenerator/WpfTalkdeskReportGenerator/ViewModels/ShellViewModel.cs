@@ -90,14 +90,15 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             set
             {
                 _teamNames = value;
-                NotifyOfPropertyChange(() => CanGenerateReport);
                 NotifyOfPropertyChange(() => TeamNames);
+                NotifyOfPropertyChange(() => CanSetTeamName);
             }
         }
 
         public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(ExcelPath) || string.IsNullOrWhiteSpace(OutputPath)) ? false : true;
         public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(ExcelPath)) ? true : false;
         public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
+        public bool CanSetTeamName => (TeamNames.Count > 0) ? true : false;
         public bool CanGenerateReport => (string.IsNullOrWhiteSpace(SelectedTeam)) ? false : true;
 
         public ShellViewModel()

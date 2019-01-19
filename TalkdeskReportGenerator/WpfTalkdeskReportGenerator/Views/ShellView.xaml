@@ -116,6 +116,7 @@
                   Grid.Column="1"
                   Grid.ColumnSpan="3"
                   Margin="10"
+                  IsEnabled="{Binding CanSetTeamName}"
                   IsEditable="True" 
                   IsReadOnly="True">
         </ComboBox>
