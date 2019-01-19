@@ -59,12 +59,12 @@ namespace WpfTalkdeskReportGenerator
                 tasks.Add(getStatuses.GetStatusesListAsync(userId, startTime, stopTime, utcOffset));
             }
 
-            var results = await Task.WhenAll(tasks);
+             List<Status>[] results = await Task.WhenAll(tasks);
 
             foreach (List<Status> statuses in results)
             {
                 agentStatuses.Statuses.AddRange(statuses);
-            }            
+            }    
 
             return agentStatuses;
         }

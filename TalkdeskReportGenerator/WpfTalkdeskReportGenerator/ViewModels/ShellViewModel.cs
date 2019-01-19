@@ -172,9 +172,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         {
             ExcelReader excelReader = new ExcelReader();
             Status = "Generating a working copy Excel...";
-            FilePath = await Task.Run(() => excelReader.CreateLightweightExcel(ExcelPath));
+            FilePath = await excelReader.CreateLightweightExcelAsync(ExcelPath);
             Status = "Getting team names from Excel...";
-            TeamNames = await Task.Run(() => excelReader.GetTeamNames(FilePath));
+            TeamNames = await excelReader.GetTeamNamesAsync(FilePath);
             Status = "Please select team name.";
         }
 
@@ -185,7 +185,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             ExcelReader excelReader = new ExcelReader();
 
             Status = "Reading Excel...";
-            List<AgentStartStops> startStopList = await Task.Run(() => excelReader.GetAgentStartStopList(FilePath, SelectedTeam));
+            List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(FilePath, SelectedTeam);
 
             IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
             DateTime day = excelReader.WorkbookDay;
@@ -209,12 +209,12 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             Application.Current.Shutdown();
         }
 
-        public void OnClose(CancelEventArgs e)
+        public async Task OnClose(CancelEventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(FilePath))
             {
                 ExcelReader excelReader = new ExcelReader();
-                excelReader.DeleteExcel(FilePath);
+                await excelReader.DeleteExcelAsync(FilePath);
             }
         }
 
