@@ -2,6 +2,8 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace WpfTalkdeskReportGenerator.ViewModels
@@ -79,6 +81,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _selectedTeam = value;
                 NotifyOfPropertyChange(() => SelectedTeam);
+                NotifyOfPropertyChange(() => CanGenerateReport);
             }
         }
         public List<string> TeamNames
@@ -95,7 +98,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(ExcelPath) || string.IsNullOrWhiteSpace(OutputPath)) ? false : true;
         public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(ExcelPath)) ? true : false;
         public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
-        public bool CanGenerateReport => (TeamNames.Count > 0) ? true : false;
+        public bool CanGenerateReport => (string.IsNullOrWhiteSpace(SelectedTeam)) ? false : true;
 
         public ShellViewModel()
         {
@@ -167,42 +170,54 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             OutputPath = null;
         }
 
-        public void GetTeamNames()
+        public async Task GetTeamNames()
         {
             ExcelReader excelReader = new ExcelReader();
-            FilePath = excelReader.CreateLightweightExcel(ExcelPath);
-            TeamNames = excelReader.GetTeamNames(FilePath);
+            Status = "Generating a working copy Excel...";
+            FilePath = await Task.Run(() => excelReader.CreateLightweightExcel(ExcelPath));
+            Status = "Getting team names from Excel...";
+            TeamNames = await Task.Run(() => excelReader.GetTeamNames(FilePath));
+            Status = "Please select team name.";
         }
 
-        public void GenerateReport()
+        public async Task GenerateReport()
         {
             IDatabase db = new Database();
             IGetStatuses getStatuses = new GetStatuses(db);
             ExcelReader excelReader = new ExcelReader();
-            List<AgentStartStops> startStopList = excelReader.GetAgentStartStopList(FilePath, SelectedTeam);
-            excelReader.DeleteExcel(FilePath);
-            IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
 
+            Status = "Reading Excel...";
+            List<AgentStartStops> startStopList = await Task.Run(() => excelReader.GetAgentStartStopList(FilePath, SelectedTeam));
+
+            IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
             DateTime day = excelReader.WorkbookDay;
 
-            List<AgentStatuses> agentStatuses = getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, day);
-
+            Status = "Retrieving agent statuses...";
+            List<AgentStatuses> agentStatuses = await Task.Run(() => getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, day));
             IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
-            List<AgentStatuses> consolidatedAgentStatuses = consolidateStatuses.Consolidate(agentStatuses);
 
-            IWriteResults writeResults = new WriteResultsToTxtFile();        
-            
+            List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));
+            Status = "Writing results to file...";
+            IWriteResults writeResults = new WriteResultsToTxtFile();
 
+            await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedTeam, excelReader.WorkbookDay));
 
-            writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedTeam, excelReader.WorkbookDay);
-
-            MessageBox.Show("Job Complete!");
+            Status = "Job complete!";
 
         }
 
         public void Exit()
         {
             Application.Current.Shutdown();
+        }
+
+        public async Task OnClose(CancelEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(FilePath))
+            {
+                ExcelReader excelReader = new ExcelReader();
+                await Task.Run(() => excelReader.DeleteExcel(FilePath));
+            }
         }
 
         public void About()
