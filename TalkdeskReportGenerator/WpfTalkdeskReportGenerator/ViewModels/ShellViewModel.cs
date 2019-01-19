@@ -191,7 +191,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             DateTime day = excelReader.WorkbookDay;
 
             Status = "Retrieving agent statuses...";
-            List<AgentStatuses> agentStatuses = await Task.Run(() => getStatusesFromStartStops.GetAgentStatusesList(getStatuses, startStopList, day));
+            List<AgentStatuses> agentStatuses = await getStatusesFromStartStops.GetAgentStatusesListAsync(getStatuses, startStopList, day);
             IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
 
             List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));

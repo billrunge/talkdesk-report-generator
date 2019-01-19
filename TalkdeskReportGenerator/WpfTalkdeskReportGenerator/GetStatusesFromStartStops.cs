@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace WpfTalkdeskReportGenerator
 {
     internal interface IGetStatusesFromStartStops
     {
-        List<AgentStatuses> GetAgentStatusesList(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime monday);
+        Task<List<AgentStatuses>> GetAgentStatusesListAsync(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day);
     }
 
     internal class GetStatusesFromStartStops : IGetStatusesFromStartStops
@@ -18,34 +19,54 @@ namespace WpfTalkdeskReportGenerator
 
         }
 
-        public List<AgentStatuses> GetAgentStatusesList(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day)
+        public async Task<List<AgentStatuses>> GetAgentStatusesListAsync(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day)
         {
             List<AgentStatuses> agentStatusesList = new List<AgentStatuses>();
-
             int utcOffset = Math.Abs(_excelTimeZone.GetUtcOffset(day).Hours);
+
+            List<Task<AgentStatuses>> tasks = new List<Task<AgentStatuses>>();
 
             foreach (AgentStartStops agentStartStop in agentStartStops)
             {
-                string userId = getStatuses.GetUserIdFromName(agentStartStop.AgentName);
-
-                AgentStatuses agentStatuses = new AgentStatuses()
-                {
-                    AgentName = agentStartStop.AgentName
-                };
-
-                foreach (StartStop startStop in agentStartStop.StartStopList)
-                {
-                    DateTime startTime = day.Add(startStop.Start);
-                    DateTime stopTime = day.Add(startStop.Stop);
-
-                    List<Status> agentStatus = getStatuses.GetStatusesList(userId, startTime, stopTime, utcOffset);
-                    agentStatuses.Statuses.AddRange(agentStatus);
-                }
-                agentStatusesList.Add(agentStatuses);
+                tasks.Add(GetAgentStatusesByStartStopAsync(getStatuses, agentStartStop, day, utcOffset));
             }
 
+            var results = await Task.WhenAll(tasks);
+
+            foreach(var agentStatus in results)
+            {
+                agentStatusesList.Add(agentStatus);
+            }
             return agentStatusesList;
         }
+                
+        private async Task<AgentStatuses> GetAgentStatusesByStartStopAsync(IGetStatuses getStatuses, AgentStartStops agentStartStop, DateTime day, int utcOffset)
+        {
+            string userId = await getStatuses.GetUserIdFromNameAsync(agentStartStop.AgentName);
 
+            AgentStatuses agentStatuses = new AgentStatuses()
+            {
+                AgentName = agentStartStop.AgentName
+            };
+
+            List<Task<List<Status>>> tasks = new List<Task<List<Status>>>();
+
+            foreach (StartStop startStop in agentStartStop.StartStopList)
+            {
+                DateTime startTime = day.Add(startStop.Start);
+                DateTime stopTime = day.Add(startStop.Stop);
+
+                tasks.Add(getStatuses.GetStatusesListAsync(userId, startTime, stopTime, utcOffset));
+            }
+
+            var results = await Task.WhenAll(tasks);
+
+            foreach (List<Status> statuses in results)
+            {
+                agentStatuses.Statuses.AddRange(statuses);
+            }            
+
+            return agentStatuses;
+        }
     }
 }
