@@ -108,11 +108,11 @@ namespace WpfTalkdeskReportGenerator
         {
             filePath = await Task.Run(() => filePath.ToLower());
 
-            Microsoft.Office.Interop.Excel.Application excelApplication = await Task.Run(() => new Microsoft.Office.Interop.Excel.Application
+            Microsoft.Office.Interop.Excel.Application excelApplication = new Microsoft.Office.Interop.Excel.Application
             {
                 DisplayAlerts = false,
                 AskToUpdateLinks = false
-            });
+            };
 
             workbook = await Task.Run(() => excelApplication.Workbooks.Open(filePath, XlUpdateLinks.xlUpdateLinksNever, true,
                 Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
@@ -218,7 +218,6 @@ namespace WpfTalkdeskReportGenerator
 
             return agentStartStop;
         }
-
 
         /* This class will give you a timespan representing the start and stop midnight offset
          * based off of how many cells away it is from the midnight column */
