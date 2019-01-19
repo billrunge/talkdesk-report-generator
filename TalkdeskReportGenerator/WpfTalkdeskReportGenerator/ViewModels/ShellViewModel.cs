@@ -73,10 +73,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         }
         public string SelectedTeam
         {
-            get
-            {
-                return _selectedTeam;
-            }
+            get => _selectedTeam;
             set
             {
                 _selectedTeam = value;
@@ -120,7 +117,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             if (fileDialog.ShowDialog() == true)
             {
                 ExcelPath = fileDialog.FileName.ToString();
-            }            
+            }
 
         }
 
@@ -171,7 +168,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             OutputPath = null;
         }
 
-        public async Task GetTeamNames()
+        public async Task GetTeamNamesAsync()
         {
             ExcelReader excelReader = new ExcelReader();
             Status = "Generating a working copy Excel...";
@@ -181,7 +178,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             Status = "Please select team name.";
         }
 
-        public async Task GenerateReport()
+        public async Task GenerateReportAsync()
         {
             IDatabase db = new Database();
             IGetStatuses getStatuses = new GetStatuses(db);
@@ -212,12 +209,12 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             Application.Current.Shutdown();
         }
 
-        public async Task OnClose(CancelEventArgs e)
+        public void OnClose(CancelEventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(FilePath))
             {
                 ExcelReader excelReader = new ExcelReader();
-                await Task.Run(() => excelReader.DeleteExcel(FilePath));
+                excelReader.DeleteExcel(FilePath);
             }
         }
 

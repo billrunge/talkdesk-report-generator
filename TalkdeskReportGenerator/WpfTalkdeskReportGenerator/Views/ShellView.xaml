@@ -100,7 +100,7 @@
 
         <!-- Row 3 -->
         <Button
-            x:Name="GetTeamNames"
+            x:Name="GetTeamNamesAsync"
             Grid.Row="3" 
             Grid.Column="1" 
             Grid.ColumnSpan="3" 
@@ -123,7 +123,7 @@
 
         <!-- Row 5 -->
         <Button
-            x:Name="GenerateReport"
+            x:Name="GenerateReportAsync"
             Grid.Row="5" 
             Grid.Column="1" 
             Grid.ColumnSpan="3" 
