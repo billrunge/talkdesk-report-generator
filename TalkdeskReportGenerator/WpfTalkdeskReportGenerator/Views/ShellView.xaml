@@ -67,36 +67,18 @@
         </Button>
 
         <Button 
-            x:Name="ClearExcelPath"
+            x:Name="Clear"
             Grid.Row="1"
-            Grid.Column="2"
-            Margin="0, 10, 0, 10" >Clear</Button>
-        
-        <TextBlock 
-            x:Name="ExcelPathStatus"            
-            Grid.Row="1" 
+            Grid.RowSpan="2"
             Grid.Column="3"
-            Margin="10" />
+            Margin="10" >Clear All</Button>
 
         <!-- Row 2 -->
-        <Button
-            
+        <Button            
             x:Name="SetOutputPath"
             Grid.Row="2" 
             Grid.Column="1" 
             Margin="10">Set Output Folder</Button>
-
-        <Button 
-            x:Name="ClearOutputPath"
-            Grid.Row="2"
-            Grid.Column="2"
-            Margin="0, 10, 0, 10" >Clear</Button>
-        
-        <TextBlock 
-            x:Name="OutputPathStatus"          
-            Grid.Row="2" 
-            Grid.Column="3"
-            Margin="10" />
 
         <!-- Row 3 -->
         <Button

@@ -10,58 +10,37 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 {
     public class ShellViewModel : Screen
     {
-        private string _excelPath;
-        private string _excelPathStatus;
+        private string _inputExcelPath;
         private string _outputPath;
-        private string _outputPathStatus;
         private string _status;
         private string _selectedTeam;
         private List<string> _teamNames;
 
-        public string ExcelPath
+        public string InputExcelPath
         {
-            get => _excelPath;
+            get => _inputExcelPath;
             set
             {
-                _excelPath = value;
-                SetExcelPathStatus();
-                NotifyOfPropertyChange(() => ExcelPath);
+                _inputExcelPath = value;
+                NotifyOfPropertyChange(() => InputExcelPath);
                 NotifyOfPropertyChange(() => CanGetTeamNames);
                 NotifyOfPropertyChange(() => CanSetExcelPath);
             }
         }
-        public string ExcelPathStatus
-        {
-            get => _excelPathStatus;
-            set
-            {
-                _excelPathStatus = value;
-                NotifyOfPropertyChange(() => ExcelPathStatus);
-            }
-        }
+
         public string OutputPath
         {
             get => _outputPath;
             set
             {
                 _outputPath = value;
-                SetOutputPathStatus();
                 NotifyOfPropertyChange(() => OutputPath);
                 NotifyOfPropertyChange(() => CanSetOutputPath);
+                NotifyOfPropertyChange(() => CanGetTeamNames);
             }
 
         }
-        public string OutputPathStatus
-        {
-            get => _outputPathStatus;
-            set
-            {
-                _outputPathStatus = value;
-                NotifyOfPropertyChange(() => OutputPathStatus);
-                NotifyOfPropertyChange(() => CanGetTeamNames);
-            }
-        }
-        public string FilePath { get; set; }
+        public string TempExcelPath { get; set; }
         public string Status
         {
             get => _status;
@@ -93,8 +72,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
         }
 
-        public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(ExcelPath) || string.IsNullOrWhiteSpace(OutputPath) || TeamNames.Count > 0) ? false : true;
-        public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(ExcelPath)) ? true : false;
+        public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(InputExcelPath) || string.IsNullOrWhiteSpace(OutputPath) || TeamNames.Count > 0) ? false : true;
+        public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(InputExcelPath)) ? true : false;
         public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
         public bool CanSetTeamName => (TeamNames.Count > 0) ? true : false;
         public bool CanGenerateReport => (string.IsNullOrWhiteSpace(SelectedTeam)) ? false : true;
@@ -102,8 +81,6 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         public ShellViewModel()
         {
             TeamNames = new List<string>();
-            SetExcelPathStatus();
-            SetOutputPathStatus();
         }
 
         public void SetExcelPath()
@@ -117,26 +94,26 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
             if (fileDialog.ShowDialog() == true)
             {
-                ExcelPath = fileDialog.FileName.ToString();
+                InputExcelPath = fileDialog.FileName.ToString();
             }
 
         }
 
-        public void SetExcelPathStatus()
+        public async Task Clear()
         {
-            if (ExcelPath == null)
-            {
-                ExcelPathStatus = "✖";
-            }
-            else
-            {
-                ExcelPathStatus = "✔";
-            }
-        }
+            InputExcelPath = null;
+            OutputPath = null;
+            SelectedTeam = null;
+            TeamNames = new List<string>();
 
-        public void ClearExcelPath()
-        {
-            ExcelPath = null;
+            if (!string.IsNullOrWhiteSpace(TempExcelPath))
+            {
+                ExcelReader excelReader = new ExcelReader();
+                await excelReader.DeleteExcelAsync(TempExcelPath);
+                TempExcelPath = null;
+            }
+
+            Status = "";
         }
 
         public void SetOutputPath()
@@ -152,30 +129,13 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
         }
 
-        public void SetOutputPathStatus()
-        {
-            if (OutputPath == null)
-            {
-                OutputPathStatus = "✖";
-            }
-            else
-            {
-                OutputPathStatus = "✔";
-            }
-        }
-
-        public void ClearOutputPath()
-        {
-            OutputPath = null;
-        }
-
         public async Task GetTeamNamesAsync()
         {
             ExcelReader excelReader = new ExcelReader();
             Status = "Generating a working copy Excel...";
-            FilePath = await excelReader.CreateLightweightExcelAsync(ExcelPath);
+            TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPath);
             Status = "Getting team names from Excel...";
-            TeamNames = await excelReader.GetTeamNamesAsync(FilePath);
+            TeamNames = await excelReader.GetTeamNamesAsync(TempExcelPath);
             Status = "Please select team name.";
         }
 
@@ -186,7 +146,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             ExcelReader excelReader = new ExcelReader();
 
             Status = "Reading Excel...";
-            List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(FilePath, SelectedTeam);
+            List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(TempExcelPath, SelectedTeam);
 
             IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
             DateTime day = excelReader.WorkbookDay;
@@ -212,10 +172,10 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
         public async Task OnClose(CancelEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(FilePath))
+            if (!string.IsNullOrWhiteSpace(TempExcelPath))
             {
                 ExcelReader excelReader = new ExcelReader();
-                await excelReader.DeleteExcelAsync(FilePath);
+                await excelReader.DeleteExcelAsync(TempExcelPath);
             }
         }
 
