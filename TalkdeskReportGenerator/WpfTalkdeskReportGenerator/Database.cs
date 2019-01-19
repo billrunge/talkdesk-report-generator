@@ -7,7 +7,7 @@ namespace WpfTalkdeskReportGenerator
 {
     public interface IDatabase
     {
-        SqlConnection OpenConnection();
+        //SqlConnection OpenConnection();
         //Task<SqlConnection> OpenConnectionAsync();
         void CloseConnection();
 

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace WpfTalkdeskReportGenerator
 {
@@ -106,38 +107,44 @@ namespace WpfTalkdeskReportGenerator
 
         public async Task<string> CreateLightweightExcelAsync(string filePath)
         {
-            filePath = await Task.Run(() => filePath.ToLower());
-
-            Microsoft.Office.Interop.Excel.Application excelApplication = new Microsoft.Office.Interop.Excel.Application
+            try
             {
-                DisplayAlerts = false,
-                AskToUpdateLinks = false
-            };
+                filePath = await Task.Run(() => filePath.ToLower());
 
-            workbook = await Task.Run(() => excelApplication.Workbooks.Open(filePath, XlUpdateLinks.xlUpdateLinksNever, true,
-                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
-                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing));
-
-            filePath = $"{Path.GetDirectoryName(filePath)}\\{Guid.NewGuid().ToString()}.xlsx";
-
-            List<Task> tasks = new List<Task>();
-
-            foreach (Worksheet sheet in workbook.Worksheets)
-            {
-                if (!(Regex.IsMatch(sheet.Name, "[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{2}")))
+                Microsoft.Office.Interop.Excel.Application excelApplication = new Microsoft.Office.Interop.Excel.Application
                 {
-                    tasks.Add(Task.Run(() => sheet.Delete()));
+                    DisplayAlerts = false,
+                    AskToUpdateLinks = false
+                };
+
+                workbook = await Task.Run(() => excelApplication.Workbooks.Open(filePath, XlUpdateLinks.xlUpdateLinksNever, true,
+                    Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
+                    Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing));
+
+                filePath = $"{Path.GetDirectoryName(filePath)}\\{Guid.NewGuid().ToString()}.xlsx";
+
+                /* Tried running this as a task list. Interop.Excel.Worksheet.Name did not like it. */
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    if (!(Regex.IsMatch(worksheet.Name, "[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{2}")))
+                    {
+                        await Task.Run(() => worksheet.Delete());
+                    }
                 }
+
+                await Task.Run(() => workbook.SaveAs(filePath, XlFileFormat.xlWorkbookDefault,
+                    Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive,
+                    Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing));
+
+                await Task.Run(() => workbook.Close(false, Type.Missing, Type.Missing));
+                await Task.Run(() => excelApplication.Quit());
+                
             }
-
-            await Task.WhenAll(tasks);
-
-            await Task.Run(() => workbook.SaveAs(filePath, XlFileFormat.xlWorkbookDefault,
-                Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive,
-                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing));
-
-            await Task.Run(() => workbook.Close(false, Type.Missing, Type.Missing));
-            await Task.Run(() => excelApplication.Quit());
+            catch (Exception e)
+            {
+                MessageBox.Show($@"{ e.Message } {Environment.NewLine}
+                                                        {e.StackTrace}");
+            }
             return filePath;
         }
 

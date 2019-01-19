@@ -10,6 +10,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 {
     public class ShellViewModel : Screen
     {
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private string _inputExcelPath;
         private string _outputPath;
         private string _status;
@@ -85,6 +87,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
         }
 
+
+
         public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(InputExcelPath) || string.IsNullOrWhiteSpace(OutputPath) || TeamNames.Count > 0 || GetTeamNamesRan) ? false : true;
         public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(InputExcelPath)) ? true : false;
         public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
@@ -93,12 +97,14 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
         public ShellViewModel()
         {
+            _log.Debug("Starting Application");
             TeamNames = new List<string>();
             GetTeamNamesRan = false;
         }
 
         public void SetExcelPath()
         {
+            _log.Debug("Opening file dialog");
             OpenFileDialog fileDialog = new OpenFileDialog
             {
                 Title = "Open Schedule Excel",
@@ -106,33 +112,40 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 InitialDirectory = @"C:\"
             };
 
+            _log.Debug("Checking to see if file name was actually set");
             if (fileDialog.ShowDialog() == true)
             {
                 InputExcelPath = fileDialog.FileName.ToString();
+                _log.Info($"InputExcelPath set to { InputExcelPath }");
             }
 
         }
 
         public async Task Clear()
         {
+            _log.Debug("Clearing InputExcelPath, OutputPath, SelectedTeam, TeamNames, GetTeamNamesRan, and Status properties");
             InputExcelPath = null;
             OutputPath = null;
             SelectedTeam = null;
             TeamNames = new List<string>();
             GetTeamNamesRan = false;
+            Status = "";
 
             if (!string.IsNullOrWhiteSpace(TempExcelPath))
             {
+                _log.Info($"Deleting the temporary file: { TempExcelPath }");
                 ExcelReader excelReader = new ExcelReader();
                 await excelReader.DeleteExcelAsync(TempExcelPath);
+                _log.Debug("Clearing TempExcelPath");
                 TempExcelPath = null;
             }
 
-            Status = "";
+
         }
 
         public void SetOutputPath()
         {
+            _log.Debug("Opening Folder Browser Dialog");
             System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog()
             {
                 Description = "Select Output Folder",
@@ -141,18 +154,33 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             if (folderBrowser.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 OutputPath = folderBrowser.SelectedPath + @"\";
+                _log.Info($"OuputPath set to { OutputPath }");
             }
         }
 
         public async Task GetTeamNamesAsync()
         {
-            GetTeamNamesRan = true;
-            ExcelReader excelReader = await Task.Run(() => new ExcelReader());
+            _log.Debug("Setting GetTeamNamesRan to true");
+            await Task.Run(() => GetTeamNamesRan = true);
+
             Status = "Generating a working copy Excel...";
+            _log.Info(Status);
+
+            _log.Debug("Generating a new ExcelReader");
+            ExcelReader excelReader = await Task.Run(() => new ExcelReader());
+
+            _log.Info("Generating temporary, lightweight Excel");
             TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPath);
+            _log.Info("Generating temporary, lightweight Excel complete");
+
+            _log.Debug($"TempExcelPath = { TempExcelPath }");
+
             Status = "Getting team names from Excel...";
+            _log.Info(Status);
+
             TeamNames = await excelReader.GetTeamNamesAsync(TempExcelPath);
             Status = "Please select team name.";
+            _log.Info(Status);
         }
 
         public async Task GenerateReportAsync()
