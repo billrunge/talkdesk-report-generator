@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -15,15 +16,19 @@ namespace WpfTalkdeskReportGenerator
     internal class GetStatuses : IGetStatuses
     {
         private IDatabase _database;
+        private readonly ILog _log;
 
-        public GetStatuses(IDatabase database)
+        public GetStatuses(IDatabase database, ILog log)
         {
             _database = database;
+            _log = log;
         }
 
         public async Task<List<Status>> GetStatusesListAsync(string userId, DateTime statusStart, DateTime statusEnd, int offset)
         {
             List<Status> statuses = new List<Status>();
+
+            _log.Debug("Generating UTC offset using date input");
             TimeSpan utcOffset = await Task.Run(() => TimeSpan.FromHours(offset));
 
             using (SqlConnection connection = _database.GetConnection())
@@ -69,6 +74,8 @@ namespace WpfTalkdeskReportGenerator
                 command.Parameters.Add(statusStartParam);
                 command.Parameters.Add(statusEndParam);
 
+                _log.Debug($"SQL query = {command.CommandText}");
+                _log
 
 
                 SqlDataReader reader = await command.ExecuteReaderAsync();

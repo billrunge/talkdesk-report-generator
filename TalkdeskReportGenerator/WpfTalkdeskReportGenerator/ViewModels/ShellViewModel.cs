@@ -139,8 +139,6 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _log.Debug("Clearing TempExcelPath");
                 TempExcelPath = null;
             }
-
-
         }
 
         public void SetOutputPath()
@@ -186,7 +184,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         public async Task GenerateReportAsync()
         {
             IDatabase db = new Database(_log);
-            IGetStatuses getStatuses = new GetStatuses(db);
+            IGetStatuses getStatuses = new GetStatuses(db, _log);
             ExcelReader excelReader = new ExcelReader(_log);
 
             Status = "Reading Excel...";
@@ -197,7 +195,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
             Status = "Retrieving agent statuses...";
             List<AgentStatuses> agentStatuses = await getStatusesFromStartStops.GetAgentStatusesListAsync(getStatuses, startStopList, day);
-            IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
+            IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses(_log);
 
             List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));
             Status = "Writing results to file...";
@@ -211,6 +209,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
         public void Exit()
         {
+            _log.Debug("Exiting application from Exit() function");
             Application.Current.Shutdown();
         }
 
