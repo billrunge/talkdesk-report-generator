@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using log4net;
 
 namespace WpfTalkdeskReportGenerator
 {
@@ -27,41 +28,51 @@ namespace WpfTalkdeskReportGenerator
         private readonly int _agentNameColumn;
         private readonly int _twelveAmColumn;
         private readonly int _elevenPmColumn;
+        private readonly ILog _log;
+
         private Workbook workbook;
         public DateTime WorkbookDay { get; private set; }
 
-        public ExcelReader()
+        public ExcelReader(ILog log)
         {
             _phoneTimeCellFill = "Solid Color Theme: Accent1, Tint: 0.799981688894314";
             _teamNameColumn = 5;
             _agentNameColumn = 7;
             _twelveAmColumn = 8;
             _elevenPmColumn = _twelveAmColumn + 23;
+            _log = log;
         }
 
-        public async Task<List<AgentStartStops>> GetAgentStartStopListAsync(string filePath, string teamName)
+        public async Task<List<AgentStartStops>> GetAgentStartStopListAsync(string excelPath, string teamName)
         {
             _teamName = teamName;
+            _log.Debug($"_teamName = { _teamName }");
 
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
-            //Using a Filestream so the Excel can be open while operation is occurring
-            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            _log.Debug($"Creating Filestream for working excel");
+            using (FileStream stream = new FileStream(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                XLWorkbook excel = new XLWorkbook(fs);
+                _log.Debug("Generting XLWorkbook object from Filestream");
+                XLWorkbook excel = new XLWorkbook(stream);
+                
                 int workSheetCount = excel.Worksheets.Count;
+                _log.Debug($"workSheetCount = { workSheetCount }");
 
-                //Use the worksheet count to return the last worksheet
+                _log.Debug($"Using workSheetCount ({workSheetCount}) to return the last worksheet");
                 IXLWorksheet lastWorkSheet = await Task.Run(() => excel.Worksheet(workSheetCount));
 
-                //Get the relevant rows for the team in question
-
+                _log.Debug($"Getting a list of row numbers that represent the members of the selected team");
                 List<int> teamRows = await GetTeamRowsAsync(lastWorkSheet);
 
-                //Extract date from Worksheet name
+                _log.Debug($"Extracting Date from worksheet name");
                 await SetWorksheetDateAsync(lastWorkSheet);
+                _log.Debug($"WorksheetDay = {WorkbookDay.ToShortDateString()}");
 
+
+                _log.Debug($"Creating list of tasks to retrieve lists of AgentStartStops");
                 List<Task<AgentStartStops>> tasks = new List<Task<AgentStartStops>>();
+
 
                 foreach (int row in teamRows)
                 {

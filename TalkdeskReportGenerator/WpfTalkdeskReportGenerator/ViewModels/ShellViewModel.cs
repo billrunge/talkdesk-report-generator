@@ -134,7 +134,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             if (!string.IsNullOrWhiteSpace(TempExcelPath))
             {
                 _log.Info($"Deleting the temporary file: { TempExcelPath }");
-                ExcelReader excelReader = new ExcelReader();
+                ExcelReader excelReader = new ExcelReader(_log);
                 await excelReader.DeleteExcelAsync(TempExcelPath);
                 _log.Debug("Clearing TempExcelPath");
                 TempExcelPath = null;
@@ -167,7 +167,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             _log.Info(Status);
 
             _log.Debug("Generating a new ExcelReader");
-            ExcelReader excelReader = await Task.Run(() => new ExcelReader());
+            ExcelReader excelReader = await Task.Run(() => new ExcelReader(_log));
 
             _log.Info("Generating temporary, lightweight Excel");
             TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPath);
@@ -185,9 +185,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
         public async Task GenerateReportAsync()
         {
-            IDatabase db = new Database();
+            IDatabase db = new Database(_log);
             IGetStatuses getStatuses = new GetStatuses(db);
-            ExcelReader excelReader = new ExcelReader();
+            ExcelReader excelReader = new ExcelReader(_log);
 
             Status = "Reading Excel...";
             List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(TempExcelPath, SelectedTeam);
@@ -218,7 +218,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         {
             if (!string.IsNullOrWhiteSpace(TempExcelPath))
             {
-                ExcelReader excelReader = new ExcelReader();
+                ExcelReader excelReader = new ExcelReader(_log);
                 await excelReader.DeleteExcelAsync(TempExcelPath);
             }
         }
