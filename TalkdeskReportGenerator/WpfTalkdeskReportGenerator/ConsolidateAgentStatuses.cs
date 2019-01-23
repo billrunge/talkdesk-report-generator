@@ -1,5 +1,4 @@
-﻿using log4net;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace WpfTalkdeskReportGenerator

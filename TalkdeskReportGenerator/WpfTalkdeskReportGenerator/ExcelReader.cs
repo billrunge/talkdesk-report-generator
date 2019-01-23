@@ -161,7 +161,7 @@ namespace WpfTalkdeskReportGenerator
                     /* Tried running this as a task list. Interop.Excel.Worksheet.Name did not like it. */
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
-                    if (!(Regex.IsMatch(worksheet.Name, "[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{2}")))
+                    if (!Regex.IsMatch(worksheet.Name, "[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{2}") || worksheet.Visible == XlSheetVisibility.xlSheetHidden)
                     {
                         await Task.Run(() => worksheet.Delete());
                     }
