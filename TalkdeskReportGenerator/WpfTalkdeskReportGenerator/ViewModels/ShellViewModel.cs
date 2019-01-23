@@ -97,14 +97,21 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
         public ShellViewModel()
         {
-            _log.Debug("Starting Application");
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.ShellViewModelStarting - Application");
+            }
             TeamNames = new List<string>();
             GetTeamNamesRan = false;
         }
 
         public void SetExcelPath()
         {
-            _log.Debug("Opening file dialog");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug("ShellViewModel.SetExcelPath - Opening file dialog");
+            }
+
             OpenFileDialog fileDialog = new OpenFileDialog
             {
                 Title = "Open Schedule Excel",
@@ -112,18 +119,25 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 InitialDirectory = @"C:\"
             };
 
-            _log.Debug("Checking to see if file name was actually set");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug("ShellViewModel.SetExcelPath - Checking to see if file name was actually set");
+            }
+
             if (fileDialog.ShowDialog() == true)
             {
                 InputExcelPath = fileDialog.FileName.ToString();
-                _log.Info($"InputExcelPath set to { InputExcelPath }");
+                _log.Info($"ShellViewModel.SetExcelPath - InputExcelPath set to { InputExcelPath }");
             }
 
         }
 
         public async Task Clear()
         {
-            _log.Debug("Clearing InputExcelPath, OutputPath, SelectedTeam, TeamNames, GetTeamNamesRan, and Status properties");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug("ShellViewModel.Clear - Clearing InputExcelPath, OutputPath, SelectedTeam, TeamNames, GetTeamNamesRan, and Status properties");
+            }
             InputExcelPath = null;
             OutputPath = null;
             SelectedTeam = null;
@@ -133,52 +147,86 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
             if (!string.IsNullOrWhiteSpace(TempExcelPath))
             {
-                _log.Info($"Deleting the temporary file: { TempExcelPath }");
+                if (_log.IsInfoEnabled)
+                {
+                    _log.Info($"ShellViewModel.Clear - Deleting the temporary file: { TempExcelPath }");
+                }
                 ExcelReader excelReader = new ExcelReader(_log);
                 await excelReader.DeleteExcelAsync(TempExcelPath);
-                _log.Debug("Clearing TempExcelPath");
                 TempExcelPath = null;
             }
         }
 
         public void SetOutputPath()
         {
-            _log.Debug("Opening Folder Browser Dialog");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug("ShellViewModel.SetOutputPath - Opening Folder Browser Dialog");
+            }
             System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog()
             {
-                Description = "Select Output Folder",
+                Description = "ShellViewModel.SetOutputPath - Select Output Folder",
                 ShowNewFolderButton = true
             };
             if (folderBrowser.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 OutputPath = folderBrowser.SelectedPath + @"\";
-                _log.Info($"OuputPath set to { OutputPath }");
+                if (_log.IsInfoEnabled)
+                {
+                    _log.Info($"ShellViewModel.SetOutputPath - OuputPath set to { OutputPath }");
+                }
             }
         }
 
         public async Task GetTeamNamesAsync()
         {
-            _log.Debug("Setting GetTeamNamesRan to true");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug("ShellViewModel.GetTeamNamesAsync - Setting GetTeamNamesRan to true");
+            }
             await Task.Run(() => GetTeamNamesRan = true);
 
             Status = "Generating a working copy Excel...";
-            _log.Info(Status);
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
+            }
 
-            _log.Debug("Generating a new ExcelReader");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug("ShellViewModel.GetTeamNamesAsync - Generating a new ExcelReader");
+            }
+
             ExcelReader excelReader = await Task.Run(() => new ExcelReader(_log));
 
-            _log.Info("Generating temporary, lightweight Excel");
-            TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPath);
-            _log.Info("Generating temporary, lightweight Excel complete");
 
-            _log.Debug($"TempExcelPath = { TempExcelPath }");
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GetTeamNamesAsync - Generating temporary, lightweight Excel");
+            }
+            TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPath);
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GetTeamNamesAsync - Generating temporary, lightweight Excel complete");
+            }
+
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ShellViewModel.GetTeamNamesAsync - TempExcelPath = { TempExcelPath }");
+            }
 
             Status = "Getting team names from Excel...";
-            _log.Info(Status);
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
+            }
 
             TeamNames = await excelReader.GetTeamNamesAsync(TempExcelPath);
             Status = "Please select team name.";
-            _log.Info(Status);
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
+            }
         }
 
         public async Task GenerateReportAsync()
@@ -188,29 +236,48 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             ExcelReader excelReader = new ExcelReader(_log);
 
             Status = "Reading Excel...";
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+            }
             List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(TempExcelPath, SelectedTeam);
 
             IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
-            DateTime day = excelReader.WorkbookDay;
+            DateTime day = excelReader.WorksheetDay;
 
             Status = "Retrieving agent statuses...";
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+            }
             List<AgentStatuses> agentStatuses = await getStatusesFromStartStops.GetAgentStatusesListAsync(getStatuses, startStopList, day);
-            IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses(_log);
+            IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
 
             List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));
             Status = "Writing results to file...";
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+            }
             IWriteResults writeResults = new WriteResultsToTxtFile();
 
-            await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedTeam, excelReader.WorkbookDay));
+            await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedTeam, excelReader.WorksheetDay));
 
             Status = "Job complete!";
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+            }
 
         }
 
         public void Exit()
         {
-            _log.Debug("Exiting application from Exit() function");
-            Application.Current.Shutdown();
+            if (_log.IsInfoEnabled)
+            {
+                _log.Info("ShellViewModel.Exit - Exiting application from Exit() function");
+                Application.Current.Shutdown();
+            }
         }
 
         public async Task OnClose(CancelEventArgs e)

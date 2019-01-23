@@ -23,13 +23,19 @@ namespace WpfTalkdeskReportGenerator
                                   Database={_database}; 
                                   Integrated Security=True; 
                                   Connection Timeout={_timeout};";
-            _log.Debug($"Connection String = { _connectionString }");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"Database.Database - Connection String = { _connectionString }");
+            }
 
         }
 
         public SqlConnection GetConnection()
         {
-            _log.Debug("Sql Connection Requested");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug("Database.GetConnection - Sql Connection Requested");
+            }
             return new SqlConnection(_connectionString);
         }
     }

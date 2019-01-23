@@ -17,7 +17,7 @@ namespace WpfTalkdeskReportGenerator
         Task<List<string>> GetTeamNamesAsync(string filePath);
         Task<string> CreateLightweightExcelAsync(string filePath);
         Task DeleteExcelAsync(string filePath);
-        DateTime WorkbookDay { get; }
+        DateTime WorksheetDay { get; }
     }
 
     public class ExcelReader : IExcelReader
@@ -31,7 +31,7 @@ namespace WpfTalkdeskReportGenerator
         private readonly ILog _log;
 
         private Workbook workbook;
-        public DateTime WorkbookDay { get; private set; }
+        public DateTime WorksheetDay { get; private set; }
 
         public ExcelReader(ILog log)
         {
@@ -46,40 +46,46 @@ namespace WpfTalkdeskReportGenerator
         public async Task<List<AgentStartStops>> GetAgentStartStopListAsync(string excelPath, string teamName)
         {
             _teamName = teamName;
-            _log.Debug($"_teamName = { _teamName }");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ExcelReader.GetAgentStartStopListAsync - Setting _teamNAme = { _teamName }");
+            }
 
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
-            _log.Debug($"Creating Filestream for working excel");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ExcelReader.GetAgentStartStopListAsync - Creating Filestream for working excel at {excelPath}");
+            }
             using (FileStream stream = new FileStream(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                _log.Debug("Generting XLWorkbook object from Filestream");
                 XLWorkbook excel = new XLWorkbook(stream);
                 
                 int workSheetCount = excel.Worksheets.Count;
-                _log.Debug($"workSheetCount = { workSheetCount }");
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.GetAgentStartStopListAsync - workSheetCount = { workSheetCount }");
+                }
 
-                _log.Debug($"Using workSheetCount ({workSheetCount}) to return the last worksheet");
-                IXLWorksheet lastWorkSheet = await Task.Run(() => excel.Worksheet(workSheetCount));
+                IXLWorksheet lastWorksheet = await Task.Run(() => excel.Worksheet(workSheetCount));
 
-                _log.Debug($"Getting a list of row numbers that represent the members of the selected team");
-                List<int> teamRows = await GetTeamRowsAsync(lastWorkSheet);
+                List<int> teamRows = await GetTeamRowsAsync(lastWorksheet);
 
-                await SetWorksheetDateAsync(lastWorkSheet);
-                _log.Debug($"WorksheetDay = {WorkbookDay.ToShortDateString()}");
+                await SetWorksheetDateAsync(lastWorksheet);
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.GetAgentStartStopListAsync - WorksheetDay = {WorksheetDay.ToShortDateString()}");
+                }
 
                 List<Task<AgentStartStops>> tasks = new List<Task<AgentStartStops>>();
 
-                _log.Debug($"Creating list of tasks to retrieve lists of AgentStartStops");
                 foreach (int row in teamRows)
                 {
-                    tasks.Add(GetAgentStartStopFromRowAsync(lastWorkSheet, row));
+                    tasks.Add(GetAgentStartStopFromRowAsync(lastWorksheet, row));
                 }
 
-                _log.Debug($"Awaiting list of Task<AgentStartStops> to complete");
                 AgentStartStops[] results = await Task.WhenAll(tasks);
 
-                _log.Debug($"Adding AgentStartStops to output list");
                 foreach (AgentStartStops result in results)
                 {
                     startStopList.Add(result);
@@ -93,32 +99,36 @@ namespace WpfTalkdeskReportGenerator
         {
             List<string> teamNames = new List<string>();
 
-            _log.Debug($"Creating a new file stream to extract team names from source Excel at { excelPath }");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ExcelReader.GetTeamNamesAsync - Creating a new file stream to extract team names from source Excel at { excelPath }");
+            }
             using (FileStream fs = new FileStream(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 XLWorkbook excel = new XLWorkbook(fs);
                 int workSheetCount = excel.Worksheets.Count;
-                _log.Debug($"workSheetCount = { workSheetCount }");
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.GetTeamNamesAsync - workSheetCount = { workSheetCount }");
+                }
 
-                _log.Debug($"Getting last worksheet from Excel using workSheetCount as index");
                 IXLWorksheet worksheet = await Task.Run(() => excel.Worksheet(workSheetCount));
 
-                _log.Debug($"Finding used rows in Excel");
                 IXLRows col = await Task.Run(() => worksheet.RowsUsed());
 
-                _log.Debug($"Checking each row in Excel to see if the value in _teamNameColumn matches up with selected team name");
                 foreach (IXLRow row in col)
                 {
                     string cellValue = row.Cell(_teamNameColumn).Value.ToString().Trim();
-                    _log.Debug($"Checking if {cellValue} is not empty or does not equal 'Team'");
                     if (!(string.IsNullOrEmpty(cellValue) || cellValue == "Team"))
                     {
-                        _log.Debug($"Adding { cellValue } to team list");
+                        if (_log.IsDebugEnabled)
+                        {
+                            _log.Debug($"ExcelReader.GetTeamNamesAsync - Adding { cellValue } to team list");
+                        }
                         teamNames.Add(cellValue);
                     }
                 }
             }
-            _log.Debug("Finding distinct team names in list and returning consolidated team name list");
             return await Task.Run(() => teamNames.Distinct().ToList());
         }
 
@@ -126,24 +136,29 @@ namespace WpfTalkdeskReportGenerator
         {
             try
             {
-                _log.Debug("Generating new instance of Excel application");
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug("ExcelReader.CreateLightweightExcelAsync - Generating new instance of Excel application");
+                }
                 Microsoft.Office.Interop.Excel.Application excelApplication = await Task.Run(() => new Microsoft.Office.Interop.Excel.Application
                 {
                     DisplayAlerts = false,
                     AskToUpdateLinks = false
                 });
-
-                _log.Debug($"Opening the excel at { excelPath }");
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.CreateLightweightExcelAsync - Opening the excel at { excelPath }");
+                }
                 workbook = await Task.Run(() => excelApplication.Workbooks.Open(excelPath, XlUpdateLinks.xlUpdateLinksNever, true,
                     Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
                     Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing));
 
                 excelPath = $"{Path.GetDirectoryName(excelPath)}\\{Guid.NewGuid().ToString()}.xlsx";
-                _log.Debug($"excelPath changed to { excelPath }");
-
-
-                _log.Debug("Looping through each worksheet and deleting those without a format like 'Mm.Dd.YY'");
-                /* Tried running this as a task list. Interop.Excel.Worksheet.Name did not like it. */
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.CreateLightweightExcelAsync - excelPath changed to { excelPath }");
+                }
+                    /* Tried running this as a task list. Interop.Excel.Worksheet.Name did not like it. */
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
                     if (!(Regex.IsMatch(worksheet.Name, "[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{2}")))
@@ -152,12 +167,18 @@ namespace WpfTalkdeskReportGenerator
                     }
                 }
 
-                _log.Debug($"Saving stripped down Excel to { excelPath }");
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.CreateLightweightExcelAsync - Saving stripped down Excel to { excelPath }");
+                }
                 await Task.Run(() => workbook.SaveAs(excelPath, XlFileFormat.xlWorkbookDefault,
                     Type.Missing, Type.Missing, Type.Missing, Type.Missing, XlSaveAsAccessMode.xlExclusive,
                     Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing));
 
-                _log.Debug($"Closing excel in memory");
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.CreateLightweightExcelAsync - Closing open Excel");
+                }
                 await Task.Run(() => workbook.Close(false, Type.Missing, Type.Missing));
 
                 _log.Debug($"Shutting down Excel application instance");
@@ -166,7 +187,7 @@ namespace WpfTalkdeskReportGenerator
             }
             catch (Exception e)
             {
-                _log.Error($@"An error has occurred creating a working copy of the source Excel
+                _log.Error($@"ExcelReader.CreateLightweightExcelAsync - An error has occurred creating a working copy of the source Excel
                               { e.Message } {Environment.NewLine}
                               {e.StackTrace}");
                 MessageBox.Show($@"{ e.Message } {Environment.NewLine}
@@ -178,21 +199,23 @@ namespace WpfTalkdeskReportGenerator
         private async Task<List<int>> GetTeamRowsAsync(IXLWorksheet worksheet)
         {
             List<int> teamRows = new List<int>();
-            _log.Debug($"Finding used rows in Excel");
             IXLRows col = await Task.Run(() => worksheet.RowsUsed());
 
-            _log.Debug("Looping through every row in the worksheet");
             foreach (IXLRow row in col)
             {
-                _log.Debug("Parsing the current row address from cell address");
+
                 if (!int.TryParse(await Task.Run(() => Regex.Replace(row.Cell(_teamNameColumn).Address.ToString(), "[^0-9.]", "")), out int currentRowAddress))
                 {
                     throw new InvalidCastException("Unable to parse row int from cell address resturned from Excel");
                 }
 
-                _log.Debug($"If the value of the cell == { _teamName } add its row address to the row address list");
+
                 if (row.Cell(_teamNameColumn).Value.ToString().Trim() == _teamName)
                 {
+                    if (_log.IsDebugEnabled)
+                    {
+                        _log.Debug($"ExcelReader.GetTeamRowsAsync - Adding { currentRowAddress } to the teamRows list");
+                    }
                     teamRows.Add(currentRowAddress);
                 }
 
@@ -202,8 +225,10 @@ namespace WpfTalkdeskReportGenerator
 
         private async Task SetWorksheetDateAsync(IXLWorksheet worksheet)
         {
-
-            _log.Debug($"Trying to parse month, day, and year from { worksheet.Name }");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ExcelReader.SetWorksheetDateAsync - Trying to parse month, day, and year from '{ worksheet.Name }'");
+            }
             string dateString = worksheet.Name;
 
             if (!int.TryParse(dateString.Split('.')[0], out int month))
@@ -221,8 +246,7 @@ namespace WpfTalkdeskReportGenerator
                 throw new FormatException($"Unable to parse {dateString.Split('.')[2]} to year int");
             }
 
-            _log.Debug($"Returning parsed month, day, and year as a DateTime object");
-            WorkbookDay = new DateTime(year, month, day);
+            WorksheetDay = new DateTime(year, month, day);
         }
 
         private async Task<AgentStartStops> GetAgentStartStopFromRowAsync(IXLWorksheet worksheet, int rowNumber)
@@ -230,19 +254,26 @@ namespace WpfTalkdeskReportGenerator
             AgentStartStops agentStartStop = new AgentStartStops();
             List<int> phoneTimeColumns = new List<int>();
 
-            _log.Debug($"Creating row object from worksheet and rowNumber { rowNumber }");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ExcelReader.GetAgentStartStopFromRowAsync - Creating row object from worksheet and rowNumber { rowNumber }");
+            }
             IXLRow row = await Task.Run(() => worksheet.Row(rowNumber));
 
             agentStartStop.AgentName = row.Cell(_agentNameColumn).Value.ToString();
-            _log.Debug($"Setting AgentName = { agentStartStop.AgentName }");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ExcelReader.GetAgentStartStopFromRowAsync - Setting AgentName = { agentStartStop.AgentName }");
+            }
 
-
-            _log.Debug("Looping through all columns from _twelveAmColumn to _elevenPmColumn");
             for (int i = _twelveAmColumn; i <= _elevenPmColumn; i++)
             {
-                _log.Debug("Checking to see if cell value's fill matches the configured _phoneTimeCellFill value");
                 if (row.Cell(i).Style.Fill.ToString() == _phoneTimeCellFill)
                 {
+                    if (_log.IsDebugEnabled)
+                    {
+                        _log.Debug($"ExcelReader.GetAgentStartStopFromRowAsync - Adding {i} to phoneTimeColumns List<int>");
+                    }
                     phoneTimeColumns.Add(i);
                 }
             }
@@ -258,6 +289,10 @@ namespace WpfTalkdeskReportGenerator
 
             foreach (StartStop startStop in results)
             {
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.GetAgentStartStopFromRowAsync - Adding start:{ startStop.Start } and stop: { startStop.Stop } to agentStartStop.StartStopList");
+                }
                 agentStartStop.StartStopList.Add(startStop);
             }
 
@@ -266,7 +301,6 @@ namespace WpfTalkdeskReportGenerator
 
         private async Task<StartStop> GetStartStopByCellPositionAsync(int position)
         {
-            _log.Debug("Converting position offset int to TimeSpan offset from midnight");
             if (position > -1 && position < 24)
             {
                 return new StartStop
@@ -284,7 +318,11 @@ namespace WpfTalkdeskReportGenerator
 
         public async Task DeleteExcelAsync(string excelPath)
         {
-            _log.Debug($"Deleting file at { excelPath }");
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ExcelReader.DeleteExcelAsync - Deleting file at { excelPath }");
+            }
+
             await Task.Run(() => File.Delete(excelPath));
         }
 

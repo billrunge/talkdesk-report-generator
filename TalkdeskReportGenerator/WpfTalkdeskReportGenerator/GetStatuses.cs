@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace WpfTalkdeskReportGenerator
-{ 
+{
     internal interface IGetStatuses
     {
         Task<string> GetUserIdFromNameAsync(string name);
@@ -28,11 +28,15 @@ namespace WpfTalkdeskReportGenerator
         {
             List<Status> statuses = new List<Status>();
 
-            _log.Debug("Generating UTC offset using date input");
             TimeSpan utcOffset = await Task.Run(() => TimeSpan.FromHours(offset));
 
             using (SqlConnection connection = _database.GetConnection())
             {
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug("GetStatuses.GetStatusesListAsync - Opening SQL connection");
+                }
+
                 await connection.OpenAsync();
 
                 string sql = @"
@@ -74,9 +78,15 @@ namespace WpfTalkdeskReportGenerator
                 command.Parameters.Add(statusStartParam);
                 command.Parameters.Add(statusEndParam);
 
-                _log.Debug($"SQL query = {command.CommandText}");
-                _log
-
+                if (_log.IsDebugEnabled)
+                {
+                    string logQuery = $"SQL query = {command.CommandText}";
+                    foreach (SqlParameter com in command.Parameters)
+                    {
+                        logQuery = logQuery.Replace(com.ToString(), $"'{com.Value.ToString()}'");
+                    }
+                    _log.Debug($"GetStatuses.GetStatusesListAsync - Executing query = {Environment.NewLine} {logQuery}");
+                }
 
                 SqlDataReader reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
@@ -122,6 +132,18 @@ namespace WpfTalkdeskReportGenerator
 
                 SqlCommand command = new SqlCommand(sql, connection);
                 command.Parameters.Add(userNameParam);
+
+                if (_log.IsDebugEnabled)
+                {
+                    string logQuery = $"SQL query = {command.CommandText}";
+                    foreach (SqlParameter com in command.Parameters)
+                    {
+                        logQuery = logQuery.Replace(com.ToString(), $"'{com.Value.ToString()}'");
+                    }
+                    _log.Debug($"GetStatuses.GetUserIdFromNameAsync - Executing query = {Environment.NewLine} {logQuery}");
+                }
+
+
                 SqlDataReader reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
