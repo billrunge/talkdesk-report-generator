@@ -61,6 +61,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _selectedName = value;
                 NotifyOfPropertyChange(() => SelectedName);
                 NotifyOfPropertyChange(() => CanGenerateReport);
+                Status = "Click Generate Report";
             }
         }
         public bool GetNamesRan
@@ -182,7 +183,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         {
             if (_log.IsDebugEnabled)
             {
-                _log.Debug("ShellViewModel.GetTeamNamesAsync - Setting GetTeamNamesRan to true");
+                _log.Debug("ShellViewModel.GetTeamNamesAsync - Setting GetNamesRan to true");
             }
             await Task.Run(() => GetNamesRan = true);
 
@@ -221,8 +222,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
             }
 
-            Names = await excelReader.GetManagerNamesAsync(TempExcelPath);
-            Status = "Please select a manager name.";
+            Names = await excelReader.GetNamesAsync(TempExcelPath);
+            Status = "Please select a manager name";
             if (_log.IsInfoEnabled)
             {
                 _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
@@ -259,7 +260,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
             }
-            IWriteResults writeResults = new WriteResultsToTxtFile();
+            IWriteResults writeResults = new WriteResultsToExcelFile();
 
             await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedName, excelReader.WorksheetDay));
 
