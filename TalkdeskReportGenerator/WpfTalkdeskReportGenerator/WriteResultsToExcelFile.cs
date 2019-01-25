@@ -49,7 +49,14 @@ namespace WpfTalkdeskReportGenerator
                                 break;
                         }
                     }
-                    sheet.Cell(currentRow, 4).Value = $"{ (((decimal)goodStatusTime / (decimal)totalStatusTime) * 100).ToString("0.##") }%";
+                    if (totalStatusTime > 0)
+                    {
+                        sheet.Cell(currentRow, 4).Value = $"{ (((decimal)goodStatusTime / (decimal)totalStatusTime) * 100).ToString("0.##") }%";
+                    } else
+                    {
+                        sheet.Cell(currentRow, 4).Value = "0%";
+                    }
+
                     currentRow += 1;
 
                     foreach (Status status in consolidatedAgentStatuses[i].Statuses)
