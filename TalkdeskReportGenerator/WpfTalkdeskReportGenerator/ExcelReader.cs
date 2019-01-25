@@ -14,7 +14,8 @@ namespace WpfTalkdeskReportGenerator
     public interface IExcelReader
     {
         Task<List<AgentStartStops>> GetAgentStartStopListAsync(string filePath, string teamName);
-        Task<List<string>> GetTeamNamesAsync(string filePath);
+        //Task<List<string>> GetTeamNamesAsync(string filePath);
+        Task<List<string>> GetManagerNamesAsync(string filePath);
         Task<string> CreateLightweightExcelAsync(string filePath);
         Task DeleteExcelAsync(string filePath);
         DateTime WorksheetDay { get; }
@@ -24,7 +25,8 @@ namespace WpfTalkdeskReportGenerator
     {
         private string _teamName;
         private readonly string _phoneTimeCellFill;
-        private readonly int _teamNameColumn;
+       // private readonly int _teamNameColumn;
+        private readonly int _managerNameColumn;
         private readonly int _agentNameColumn;
         private readonly int _twelveAmColumn;
         private readonly int _elevenPmColumn;
@@ -36,7 +38,8 @@ namespace WpfTalkdeskReportGenerator
         public ExcelReader(ILog log)
         {
             _phoneTimeCellFill = "Solid Color Theme: Accent1, Tint: 0.799981688894314";
-            _teamNameColumn = 5;
+           // _teamNameColumn = 5;
+            _managerNameColumn = 6;
             _agentNameColumn = 7;
             _twelveAmColumn = 8;
             _elevenPmColumn = _twelveAmColumn + 23;
@@ -95,13 +98,50 @@ namespace WpfTalkdeskReportGenerator
             return startStopList;
         }
 
-        public async Task<List<string>> GetTeamNamesAsync(string excelPath)
+        //public async Task<List<string>> GetTeamNamesAsync(string excelPath)
+        //{
+        //    List<string> teamNames = new List<string>();
+
+        //    if (_log.IsDebugEnabled)
+        //    {
+        //        _log.Debug($"ExcelReader.GetTeamNamesAsync - Creating a new file stream to extract team names from source Excel at { excelPath }");
+        //    }
+        //    using (FileStream fs = new FileStream(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        //    {
+        //        XLWorkbook excel = new XLWorkbook(fs);
+        //        int workSheetCount = excel.Worksheets.Count;
+        //        if (_log.IsDebugEnabled)
+        //        {
+        //            _log.Debug($"ExcelReader.GetTeamNamesAsync - workSheetCount = { workSheetCount }");
+        //        }
+
+        //        IXLWorksheet worksheet = await Task.Run(() => excel.Worksheet(workSheetCount));
+
+        //        IXLRows col = await Task.Run(() => worksheet.RowsUsed());
+
+        //        foreach (IXLRow row in col)
+        //        {
+        //            string cellValue = row.Cell(_teamNameColumn).Value.ToString().Trim();
+        //            if (!(string.IsNullOrEmpty(cellValue) || cellValue == "Team"))
+        //            {
+        //                if (_log.IsDebugEnabled)
+        //                {
+        //                    _log.Debug($"ExcelReader.GetTeamNamesAsync - Adding { cellValue } to team list");
+        //                }
+        //                teamNames.Add(cellValue);
+        //            }
+        //        }
+        //    }
+        //    return await Task.Run(() => teamNames.Distinct().ToList());
+        //}
+
+        public async Task<List<string>> GetManagerNamesAsync(string excelPath)
         {
-            List<string> teamNames = new List<string>();
+            List<string> managerNames = new List<string>();
 
             if (_log.IsDebugEnabled)
             {
-                _log.Debug($"ExcelReader.GetTeamNamesAsync - Creating a new file stream to extract team names from source Excel at { excelPath }");
+                _log.Debug($"ExcelReader.GetManagerNamesAsync - Creating a new file stream to extract manager names from source Excel at { excelPath }");
             }
             using (FileStream fs = new FileStream(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -109,7 +149,7 @@ namespace WpfTalkdeskReportGenerator
                 int workSheetCount = excel.Worksheets.Count;
                 if (_log.IsDebugEnabled)
                 {
-                    _log.Debug($"ExcelReader.GetTeamNamesAsync - workSheetCount = { workSheetCount }");
+                    _log.Debug($"ExcelReader.GetManagerNamesAsync - workSheetCount = { workSheetCount }");
                 }
 
                 IXLWorksheet worksheet = await Task.Run(() => excel.Worksheet(workSheetCount));
@@ -118,18 +158,18 @@ namespace WpfTalkdeskReportGenerator
 
                 foreach (IXLRow row in col)
                 {
-                    string cellValue = row.Cell(_teamNameColumn).Value.ToString().Trim();
-                    if (!(string.IsNullOrEmpty(cellValue) || cellValue == "Team"))
+                    string cellValue = row.Cell(_managerNameColumn).Value.ToString().Trim();
+                    if (!(string.IsNullOrEmpty(cellValue) || cellValue == "Agent Manager"))
                     {
                         if (_log.IsDebugEnabled)
                         {
-                            _log.Debug($"ExcelReader.GetTeamNamesAsync - Adding { cellValue } to team list");
+                            _log.Debug($"ExcelReader.GetManagerNamesAsync - Adding { cellValue } to manager list");
                         }
-                        teamNames.Add(cellValue);
+                        managerNames.Add(cellValue);
                     }
                 }
             }
-            return await Task.Run(() => teamNames.Distinct().ToList());
+            return await Task.Run(() => managerNames.Distinct().ToList());
         }
 
         public async Task<string> CreateLightweightExcelAsync(string excelPath)
@@ -204,13 +244,13 @@ namespace WpfTalkdeskReportGenerator
             foreach (IXLRow row in col)
             {
 
-                if (!int.TryParse(await Task.Run(() => Regex.Replace(row.Cell(_teamNameColumn).Address.ToString(), "[^0-9.]", "")), out int currentRowAddress))
+                if (!int.TryParse(await Task.Run(() => Regex.Replace(row.Cell(_managerNameColumn).Address.ToString(), "[^0-9.]", "")), out int currentRowAddress))
                 {
                     throw new InvalidCastException("Unable to parse row int from cell address resturned from Excel");
                 }
 
 
-                if (row.Cell(_teamNameColumn).Value.ToString().Trim() == _teamName)
+                if (row.Cell(_managerNameColumn).Value.ToString().Trim() == _teamName)
                 {
                     if (_log.IsDebugEnabled)
                     {

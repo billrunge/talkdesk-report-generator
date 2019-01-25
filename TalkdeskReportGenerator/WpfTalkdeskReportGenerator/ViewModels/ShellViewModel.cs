@@ -15,9 +15,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         private string _inputExcelPath;
         private string _outputPath;
         private string _status;
-        private string _selectedTeam;
-        private bool _getTeamNamesRan;
-        private List<string> _teamNames;
+        private string _selectedName;
+        private bool _getNamesRan;
+        private List<string> _names;
 
         public string InputExcelPath
         {
@@ -26,7 +26,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _inputExcelPath = value;
                 NotifyOfPropertyChange(() => InputExcelPath);
-                NotifyOfPropertyChange(() => CanGetTeamNames);
+                NotifyOfPropertyChange(() => CanGetNames);
                 NotifyOfPropertyChange(() => CanSetExcelPath);
             }
         }
@@ -39,7 +39,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _outputPath = value;
                 NotifyOfPropertyChange(() => OutputPath);
                 NotifyOfPropertyChange(() => CanSetOutputPath);
-                NotifyOfPropertyChange(() => CanGetTeamNames);
+                NotifyOfPropertyChange(() => CanGetNames);
             }
 
         }
@@ -53,47 +53,47 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 NotifyOfPropertyChange(() => Status);
             }
         }
-        public string SelectedTeam
+        public string SelectedName
         {
-            get => _selectedTeam;
+            get => _selectedName;
             set
             {
-                _selectedTeam = value;
-                NotifyOfPropertyChange(() => SelectedTeam);
+                _selectedName = value;
+                NotifyOfPropertyChange(() => SelectedName);
                 NotifyOfPropertyChange(() => CanGenerateReport);
             }
         }
-        public bool GetTeamNamesRan
+        public bool GetNamesRan
         {
             get
             {
-                return _getTeamNamesRan;
+                return _getNamesRan;
             }
             set
             {
-                _getTeamNamesRan = value;
-                NotifyOfPropertyChange(() => CanGetTeamNames);
+                _getNamesRan = value;
+                NotifyOfPropertyChange(() => CanGetNames);
             }
         }
-        public List<string> TeamNames
+        public List<string> Names
         {
-            get => _teamNames;
+            get => _names;
             set
             {
-                _teamNames = value;
-                NotifyOfPropertyChange(() => TeamNames);
-                NotifyOfPropertyChange(() => CanSetTeamName);
-                NotifyOfPropertyChange(() => CanGetTeamNames);
+                _names = value;
+                NotifyOfPropertyChange(() => Names);
+                NotifyOfPropertyChange(() => CanSetName);
+                NotifyOfPropertyChange(() => CanGetNames);
             }
         }
 
 
 
-        public bool CanGetTeamNames => (string.IsNullOrWhiteSpace(InputExcelPath) || string.IsNullOrWhiteSpace(OutputPath) || TeamNames.Count > 0 || GetTeamNamesRan) ? false : true;
+        public bool CanGetNames => (string.IsNullOrWhiteSpace(InputExcelPath) || string.IsNullOrWhiteSpace(OutputPath) || Names.Count > 0 || GetNamesRan) ? false : true;
         public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(InputExcelPath)) ? true : false;
         public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
-        public bool CanSetTeamName => (TeamNames.Count > 0) ? true : false;
-        public bool CanGenerateReport => (string.IsNullOrWhiteSpace(SelectedTeam)) ? false : true;
+        public bool CanSetName => (Names.Count > 0) ? true : false;
+        public bool CanGenerateReport => (string.IsNullOrWhiteSpace(SelectedName)) ? false : true;
 
         public ShellViewModel()
         {
@@ -101,8 +101,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _log.Info("ShellViewModel.ShellViewModelStarting - Application");
             }
-            TeamNames = new List<string>();
-            GetTeamNamesRan = false;
+            Names = new List<string>();
+            GetNamesRan = false;
         }
 
         public void SetExcelPath()
@@ -140,9 +140,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
             InputExcelPath = null;
             OutputPath = null;
-            SelectedTeam = null;
-            TeamNames = new List<string>();
-            GetTeamNamesRan = false;
+            SelectedName = null;
+            Names = new List<string>();
+            GetNamesRan = false;
             Status = "";
 
             if (!string.IsNullOrWhiteSpace(TempExcelPath))
@@ -178,13 +178,13 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
         }
 
-        public async Task GetTeamNamesAsync()
+        public async Task GetNamesAsync()
         {
             if (_log.IsDebugEnabled)
             {
                 _log.Debug("ShellViewModel.GetTeamNamesAsync - Setting GetTeamNamesRan to true");
             }
-            await Task.Run(() => GetTeamNamesRan = true);
+            await Task.Run(() => GetNamesRan = true);
 
             Status = "Generating a working copy Excel...";
             if (_log.IsInfoEnabled)
@@ -221,8 +221,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
             }
 
-            TeamNames = await excelReader.GetTeamNamesAsync(TempExcelPath);
-            Status = "Please select team name.";
+            Names = await excelReader.GetManagerNamesAsync(TempExcelPath);
+            Status = "Please select a manager name.";
             if (_log.IsInfoEnabled)
             {
                 _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
@@ -240,7 +240,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
             }
-            List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(TempExcelPath, SelectedTeam);
+            List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(TempExcelPath, SelectedName);
 
             IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
             DateTime day = excelReader.WorksheetDay;
@@ -261,7 +261,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
             IWriteResults writeResults = new WriteResultsToTxtFile();
 
-            await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedTeam, excelReader.WorksheetDay));
+            await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedName, excelReader.WorksheetDay));
 
             Status = "Job complete!";
             if (_log.IsInfoEnabled)

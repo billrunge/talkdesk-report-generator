@@ -82,23 +82,23 @@
 
         <!-- Row 3 -->
         <Button
-            x:Name="GetTeamNamesAsync"
+            x:Name="GetNamesAsync"
             Grid.Row="3" 
             Grid.Column="1" 
             Grid.ColumnSpan="3" 
-            Margin="10">Get Team Names</Button>
+            Margin="10">Get Manager Names</Button>
         
         <!-- Row 4 -->
 
-        <ComboBox x:Name="SelectTeamName"
-                  ItemsSource="{Binding TeamNames}"
-                  SelectedItem="{Binding SelectedTeam}"
-                  Text="Select Team Name"
+        <ComboBox x:Name="SelectName"
+                  ItemsSource="{Binding Names}"
+                  SelectedItem="{Binding SelectedName}"
+                  Text="Select Name"
                   Grid.Row="4"
                   Grid.Column="1"
                   Grid.ColumnSpan="3"
                   Margin="10"
-                  IsEnabled="{Binding CanSetTeamName}"
+                  IsEnabled="{Binding CanSetName}"
                   IsEditable="True" 
                   IsReadOnly="True">
         </ComboBox>
