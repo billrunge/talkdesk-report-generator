@@ -1,12 +1,14 @@
-﻿<Popup x:Class="WpfTalkdeskReportGenerator.Views.SettingsView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfTalkdeskReportGenerator.Views"
-        mc:Ignorable="d"
-        Height="400" Width="500">
-    <Grid Background="white">
+﻿<UserControl x:Class="WpfTalkdeskReportGenerator.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfTalkdeskReportGenerator.Views"
+             mc:Ignorable="d" 
+             Background="White"
+             d:DesignHeight="285" 
+             d:DesignWidth="300">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20" />
             <ColumnDefinition Width="auto" />
@@ -18,26 +20,28 @@
             <RowDefinition Height="20" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
-        <!-- Row 1 -->       
-        <TextBlock Grid.Row="1" Grid.Column="1" >Excel Timezone</TextBlock>
-        <ComboBox Grid.Row="1" Grid.Column="2" Width="200">
-            <ComboBoxItem>1</ComboBoxItem>
-            <ComboBoxItem>2</ComboBoxItem>
-        </ComboBox>
-        
-        <!-- Row 2 -->
-        <TextBlock Grid.Row="2" Grid.Column="1"></TextBlock>
 
-        <!--<add key="PhoneTimeCellFill" value="Solid Color Theme: Accent1, Tint: 0.799981688894314"/>
-        <add key="TeamName" value="RelativityOne"/>
-        <add key="TeamNameColumn" value="2"/>
-        <add key="AgentNameColumn" value="7"/>
-        <add key="TwelveAmColumn" value="8"/>
-        <add key="ExcelTimeZone" value="Central Standard Time"/>-->
+        <Button Grid.Row="0" Grid.Column="1" Name="Back">Back</Button>
+        
+        <!-- Row 1 -->
+        <TextBlock Grid.Row="1" Grid.Column="1">Excel Time Zone</TextBlock>
+        <ComboBox x:Name="SelectName"
+                  ItemsSource="{Binding TimeZones}"
+                  SelectedItem="{Binding SelectedTimeZone}"
+                  Text="Select Time Zone"
+                  Grid.Row="1"
+                  Grid.Column="2"
+                  IsEnabled="{Binding CanSetTimeZone}"
+                  IsEditable="True" 
+                  IsReadOnly="True">
+        </ComboBox>
+
 
 
     </Grid>
-</Popup>
+</UserControl>

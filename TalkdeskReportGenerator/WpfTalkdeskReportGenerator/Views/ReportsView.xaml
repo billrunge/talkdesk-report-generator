@@ -3,10 +3,118 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             
+             xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro.Platform"
              xmlns:local="clr-namespace:WpfTalkdeskReportGenerator.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="285" 
+             d:DesignWidth="300"
+             Background="White">
     <Grid>
-            
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="20" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="20" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0/Menu -->
+
+        <Grid Grid.Row="0" Grid.ColumnSpan="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Menu>
+                <MenuItem Header="File" Grid.Column="0">
+                    <MenuItem x:Name="Settings" Header="Settings" />
+                    <MenuItem x:Name="Exit" Header="Exit"/>
+                </MenuItem>
+                <MenuItem Header="Help" Grid.Column="1">
+                    <MenuItem x:Name="About" Header="About"/>
+                </MenuItem>
+            </Menu>
+        </Grid>
+
+
+        <!-- Row 1 -->
+
+        <Button 
+            x:Name="SetExcelPath"
+            Grid.Row="1" 
+            Grid.Column="1" 
+            Margin="10" >
+            Load Schedule Excel
+        </Button>
+
+        <Button 
+            x:Name="Clear"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Grid.Column="3"
+            Margin="10" >Start Over</Button>
+
+        <!-- Row 2 -->
+        <Button            
+            x:Name="SetOutputPath"
+            Grid.Row="2" 
+            Grid.Column="1" 
+            Margin="10">Set Output Folder</Button>
+
+        <!-- Row 3 -->
+        <Button
+            x:Name="GetNamesAsync"
+            Grid.Row="3" 
+            Grid.Column="1" 
+            Grid.ColumnSpan="3" 
+            Margin="10">Get Manager Names</Button>
+
+        <!-- Row 4 -->
+
+        <ComboBox x:Name="SelectName"
+                  ItemsSource="{Binding Names}"
+                  SelectedItem="{Binding SelectedName}"
+                  Text="Select Name"
+                  Grid.Row="4"
+                  Grid.Column="1"
+                  Grid.ColumnSpan="3"
+                  Margin="10"
+                  IsEnabled="{Binding CanSetName}"
+                  IsEditable="True" 
+                  IsReadOnly="True">
+        </ComboBox>
+
+        <!-- Row 5 -->
+        <Button
+            x:Name="GenerateReportAsync"
+            Grid.Row="5" 
+            Grid.Column="1" 
+            Grid.ColumnSpan="3" 
+            Margin="10">Generate Report</Button>
+
+        <!-- Row 6/Bottom Status -->
+        <TextBlock
+            x:Name="Status"
+            Grid.Row="6"
+            Grid.Column="1"
+            Grid.ColumnSpan="3"
+            Margin="10, 0, 0, 0">
+        </TextBlock>
+
+
     </Grid>
 </UserControl>
