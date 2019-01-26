@@ -9,20 +9,39 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 {
     public class ShellViewModel : Conductor<Object>
     {
+                     
         public ShellViewModel()
         {
-            ActivateWindow.Parent = this;
-            ActivateWindow.OpenItem(new ReportsViewModel());
+            ActivateWindow.ShellView = this;
+            //ActivateWindow.OpenItem(new ReportsViewModel());
+            ActivateWindow.ViewReports();
         }
+
     }
 
     public static class ActivateWindow
     {
-        public static ShellViewModel Parent;
+        public static ShellViewModel ShellView;
+        public static ReportsViewModel ReportsView = new ReportsViewModel();
+        public static SettingsViewModel SettingsView = new SettingsViewModel();
 
-        public static void OpenItem(IScreen t)
+        public static void OpenItem(IScreen screen)
         {
-            Parent.ActivateItem(t);
+            ShellView.ActivateItem(screen);
         }
+
+        public static void ViewReports()
+        {
+            OpenItem(ReportsView);
+        }
+
+        public static void ViewSettings()
+        {
+            OpenItem(SettingsView);
+        }
+
+
+
+
     }
 }

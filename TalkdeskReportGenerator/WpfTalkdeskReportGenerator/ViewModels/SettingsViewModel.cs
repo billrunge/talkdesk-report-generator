@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WpfTalkdeskReportGenerator.ViewModels
 {
-    class SettingsViewModel : Screen
+    public class SettingsViewModel : Screen
     {
         public List<string> TimeZones { get; set; }
 
@@ -34,7 +34,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
         public void Back()
         {
-            ActivateWindow.OpenItem(new ReportsViewModel());
+            ActivateWindow.ViewReports();
         }
     }
 }

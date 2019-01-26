@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace WpfTalkdeskReportGenerator.ViewModels
 {
-    class ReportsViewModel : Screen
+    public class ReportsViewModel : Screen
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -283,7 +283,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
         public void Settings()
         {
-            ActivateWindow.OpenItem(new SettingsViewModel());
+            ActivateWindow.ViewSettings();
         }
 
         //protected override void OnDeactivate(bool close)
