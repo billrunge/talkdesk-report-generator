@@ -10,16 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace WpfTalkdeskReportGenerator.Views
 {
     /// <summary>
-    /// Interaction logic for SettingsView.xaml
+    /// Interaction logic for ReportsView.xaml
     /// </summary>
-    public partial class SettingsView
+    public partial class ReportsView : UserControl
     {
-        public SettingsView()
+        public ReportsView()
         {
             InitializeComponent();
         }
