@@ -9,11 +9,11 @@
         FontSize="13"
         Title="Talkdesk Reporter" 
         FontFamily="Segoe UI Light"
-        Height="285" 
-        Width="300" 
+        Height="325" 
+        Width="380"         
         WindowStartupLocation="CenterScreen" 
         >
-    
+
     <ContentControl x:Name="ActiveItem" />
     
 </Window>

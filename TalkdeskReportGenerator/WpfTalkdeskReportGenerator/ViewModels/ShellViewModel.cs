@@ -13,7 +13,6 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         public ShellViewModel()
         {
             ActivateWindow.ShellView = this;
-            //ActivateWindow.OpenItem(new ReportsViewModel());
             ActivateWindow.ViewReports();
         }
 
@@ -39,9 +38,5 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         {
             OpenItem(SettingsView);
         }
-
-
-
-
     }
 }

@@ -107,6 +107,7 @@
     <Compile Include="GetStatuses.cs" />
     <Compile Include="GetStatusesFromStartStops.cs" />
     <Compile Include="Models\ExcelStatusModel.cs" />
+    <Compile Include="Models\SettingsModel.cs" />
     <Compile Include="StartStop.cs" />
     <Compile Include="Status.cs" />
     <Compile Include="ViewModels\ReportsViewModel.cs" />

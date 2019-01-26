@@ -1,7 +1,27 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WpfTalkdeskReportGenerator.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="PhoneColorKeyColumn" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AH</Value>
+    </Setting>
+    <Setting Name="PhoneColorKeyRow" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="GroupByNameColumn" Type="System.String" Scope="User">
+      <Value Profile="(Default)">F</Value>
+    </Setting>
+    <Setting Name="GroupByNameRow" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">12</Value>
+    </Setting>
+    <Setting Name="AgentNameColumn" Type="System.String" Scope="User">
+      <Value Profile="(Default)">G</Value>
+    </Setting>
+    <Setting Name="TwelveAmColumn" Type="System.String" Scope="User">
+      <Value Profile="(Default)">H</Value>
+    </Setting>
+    <Setting Name="TimeZoneName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Central Standard Time</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>
