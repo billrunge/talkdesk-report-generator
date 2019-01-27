@@ -5,23 +5,24 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfTalkdeskReportGenerator.Views"
              mc:Ignorable="d" 
-             FontSize="13"
              Background="White"
-             d:DesignHeight="250" 
-             d:DesignWidth="380">
+             d:DesignHeight="225" 
+             d:DesignWidth="350"
+             FontFamily="Segoe UI Light"
+             FontSize="15">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="5" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="5" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20" />
+            <RowDefinition Height="5" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
@@ -34,112 +35,142 @@
         <!-- Row 1 -->
         <TextBlock Grid.Row="1" 
                    Grid.Column="1"
-                   Margin="5">Excel Time Zone</TextBlock>
+                   FontFamily="Segoe UI"
+                   Width="150"
+                   Margin="2">Excel Time Zone:</TextBlock>
         
         <ComboBox x:Name="SelectTimeZone"
                   ItemsSource="{Binding Path=TimeZoneInfos}"
-                  SelectedItem="{Binding Path=Settings.ExcelTimeZoneInfo, Mode=TwoWay}"
-                  
+                  SelectedItem="{Binding Path=SelectedTimeZone, Mode=TwoWay}"
+                  FontSize="13"
                   Grid.Row="1"
                   Grid.Column="2"
                   Grid.ColumnSpan="5"
                   IsEditable="True" 
-                  Margin="5"
+                  Margin="2"
                   IsReadOnly="True">
         </ComboBox>
         
         <!-- Row 2 -->
         <TextBlock Grid.Row="2" 
                    Grid.Column="1"
-                   Margin="5">Phone Color Key Cell</TextBlock>
+                   FontFamily="Segoe UI"
+                   Width="150"
+                   Margin="2">Phone Color Key Cell:</TextBlock>
         
         <TextBlock Grid.Row="2" 
                    Grid.Column="2"
-                   Margin="5">Column: </TextBlock>
+                   FontSize="13"
+                   Margin="2">Column: </TextBlock>
 
         <TextBox Grid.Row="2" 
                  Grid.Column="3"
-                 Text="{Binding Settings.PhoneColorKeyCell.Column}"
-                 Margin="5" />
+                 FontSize="13"
+                 Text="{Binding PhoneColorKeyColumn}"
+                 Margin="2" />
 
         <TextBlock Grid.Row="2" 
                    Grid.Column="4"
-                   Margin="5">Row: </TextBlock>
+                   FontSize="13"
+                   Margin="2">Row: </TextBlock>
 
         <TextBox Grid.Row="2" 
                  Grid.Column="5"
-                 Text="{Binding Settings.PhoneColorKeyCell.Row}"
-                 Margin="5" />
+                 FontSize="13"
+                 Text="{Binding PhoneColorKeyRow}"
+                 Margin="2" />
         
         <!-- Row 3 -->
 
         <TextBlock Grid.Row="3" 
                    Grid.Column="1"
-                   Margin="5">Group By Name Cell</TextBlock>
+                   FontFamily="Segoe UI"
+                   Width="150"
+                   Margin="2">Group By Name Cell:</TextBlock>
 
         <TextBlock Grid.Row="3" 
                    Grid.Column="2"
-                   Margin="5">Column:</TextBlock>
+                   FontSize="13"
+                   Margin="2">Column:</TextBlock>
 
         <TextBox Grid.Row="3" 
                  Grid.Column="3"
-                 Text="{Binding Settings.GroupByNameCell.Column}"
-                 Margin="5" />
+                 FontSize="13"
+                 Text="{Binding GroupByNameColumn}"
+                 Margin="2" />
 
         <TextBlock Grid.Row="3" 
                    Grid.Column="4"
-                   Margin="5">Row:</TextBlock>
+                   FontSize="13"
+                   Margin="2">Row:</TextBlock>
 
         <TextBox Grid.Row="3" 
                  Grid.Column="5"
-                 Text="{Binding Settings.GroupByNameCell.Row}"
-                 Margin="5" />
+                 FontSize="13"
+                 Text="{Binding GroupByNameRow}"
+                 Margin="2" />
 
         <!-- Row 4 -->
 
         <TextBlock Grid.Row="4" 
                    Grid.Column="1"
-                   Margin="5">Agent Name Column</TextBlock>
+                   FontFamily="Segoe UI"
+                   Width="150"
+                   Margin="2">Agent Name Column:</TextBlock>
 
         <TextBlock Grid.Row="4" 
                    Grid.Column="2"
-                   Margin="5">Column: </TextBlock>
+                   FontSize="13"
+                   Margin="2">Column: </TextBlock>
 
         <TextBox Grid.Row="4" 
                  Grid.Column="3"
-                 Text="{Binding Settings.AgentNameColumn}"
-                 Margin="5" />
+                 FontSize="13"
+                 Text="{Binding AgentNameColumn}"
+                 Margin="2" />
         
         <!-- Row 5-->
 
         <TextBlock Grid.Row="5" 
                    Grid.Column="1"
-                   Margin="5">12AM Column</TextBlock>
+                   FontFamily="Segoe UI"
+                   Width="150"
+                   Margin="2">12AM Column:</TextBlock>
 
         <TextBlock Grid.Row="5" 
                    Grid.Column="2"
-                   Margin="5">Column:</TextBlock>
+                   FontSize="13"
+                   Margin="2">Column:</TextBlock>
 
         <TextBox Grid.Row="5" 
                  Grid.Column="3"
-                 Text="{Binding Settings.TwelveAmColumn}"
-                 Margin="5" />
+                 FontSize="13"
+                 Text="{Binding TwelveAmColumn}"
+                 Margin="2" />
 
         <!-- Row 6 -->
         <Button Grid.Row="6" 
                 Grid.Column="1" 
                 Name="Back"
-                Margin="5">Back</Button>
+                Background="#d9d9d9"
+                BorderThickness="0"  
+                Margin="2">Back</Button>
+
+        <Button Grid.Row="6"
+                Grid.Column="2"
+                Grid.ColumnSpan="2"
+                Name="Cancel"
+                Background="#d9d9d9"
+                BorderThickness="0" 
+                Margin="2">Cancel</Button>
 
         <Button Grid.Row="6" 
-                Grid.Column="2" 
-                Grid.ColumnSpan="2"
+                Grid.Column="4" 
+                Grid.ColumnSpan="3"
                 Name="Save"
-                Margin="5">Save</Button>
-
-
-
-
-
+                Background="#d9d9d9"
+                BorderThickness="0" 
+                Margin="2">Save</Button>
+        
     </Grid>
 </UserControl>

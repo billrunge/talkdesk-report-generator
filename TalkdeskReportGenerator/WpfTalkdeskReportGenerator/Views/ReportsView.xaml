@@ -7,19 +7,23 @@
              xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro.Platform"
              xmlns:local="clr-namespace:WpfTalkdeskReportGenerator.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="250" 
-             d:DesignWidth="375"
-             Background="White">
+             FontSize="15"
+             d:DesignHeight="225" 
+             d:DesignWidth="350"
+             Background="White"
+             
+             FontFamily="Segoe UI Light">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="5" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20" />
+            <RowDefinition Height="5" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
@@ -28,60 +32,75 @@
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
 
-        <!-- Row 0/Menu -->
-
-        <Grid Grid.Row="0" Grid.ColumnSpan="5">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="20" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Menu>
-                <MenuItem Header="File" Grid.Column="0">
-                    <MenuItem x:Name="Settings" Header="Settings" />
-                    <MenuItem x:Name="Exit" Header="Exit"/>
-                </MenuItem>
-                <MenuItem Header="Help" Grid.Column="1">
-                    <MenuItem x:Name="About" Header="About"/>
-                </MenuItem>
-            </Menu>
-        </Grid>
-
-
         <!-- Row 1 -->
 
         <Button 
             x:Name="SetExcelPath"
             Grid.Row="1" 
             Grid.Column="1" 
-            Margin="10" >
-            Load Schedule Excel
+            Width="170"
+            Margin="2" 
+            Background="#d9d9d9"
+            BorderThickness="0"            
+            >
+            Set Excel Path
         </Button>
 
         <Button 
             x:Name="Clear"
             Grid.Row="1"
-            Grid.RowSpan="2"
             Grid.Column="3"
-            Margin="10" >Start Over</Button>
+            Width="50"
+            BorderThickness="0"
+            Background="#f2f2f2"
+            Margin="2" >Clear</Button>
+
+        <Button 
+            x:Name="Settings"
+            Grid.Row="1"
+            Grid.Column="4"
+            BorderThickness="0"
+            Background="#f2f2f2"
+            Margin="2" >Settings</Button>
 
         <!-- Row 2 -->
         <Button            
             x:Name="SetOutputPath"
             Grid.Row="2" 
             Grid.Column="1" 
-            Margin="10">Set Output Folder</Button>
+            Width="170"
+            BorderThickness="0"
+            Background="#d9d9d9"
+            Margin="2">
+            Set Output Path
+        </Button>
+
+        <Button 
+            x:Name="Exit"
+            Grid.Row="2"
+            Grid.Column="3"
+            Width="50"
+            BorderThickness="0"
+            Background="#f2f2f2"
+            Margin="2" >Exit</Button>
+
+        <Button 
+            x:Name="About"
+            Grid.Row="2"
+            Grid.Column="4"
+            BorderThickness="0"
+            Background="#f2f2f2"
+            Margin="2" >About</Button>
 
         <!-- Row 3 -->
         <Button
             x:Name="GetNamesAsync"
             Grid.Row="3" 
             Grid.Column="1" 
-            Grid.ColumnSpan="3" 
-            Margin="10">Get Names</Button>
+            Grid.ColumnSpan="4" 
+            BorderThickness="0"
+            Background="#d9d9d9"
+            Margin="2">Get Names</Button>
 
         <!-- Row 4 -->
 
@@ -91,8 +110,8 @@
                   Text="{Binding SelectNameText}"
                   Grid.Row="4"
                   Grid.Column="1"
-                  Grid.ColumnSpan="3"
-                  Margin="10"
+                  Grid.ColumnSpan="4"
+                  Margin="2"
                   IsEnabled="{Binding CanSetName}"
                   IsEditable="True" 
                   IsReadOnly="True">
@@ -103,8 +122,10 @@
             x:Name="GenerateReportAsync"
             Grid.Row="5" 
             Grid.Column="1" 
-            Grid.ColumnSpan="3" 
-            Margin="10">Generate Report</Button>
+            Grid.ColumnSpan="4" 
+            BorderThickness="0"
+            Background="#d9d9d9"
+            Margin="2">Generate Report</Button>
 
         <!-- Row 6/Bottom Status -->
         <TextBlock
@@ -112,7 +133,7 @@
             Grid.Row="6"
             Grid.Column="1"
             Grid.ColumnSpan="3"
-            Margin="10, 0, 0, 0">
+            Margin="3, 0, 0, 0">
         </TextBlock>
 
 
