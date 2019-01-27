@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Library
 {
     public class StartStop
     {

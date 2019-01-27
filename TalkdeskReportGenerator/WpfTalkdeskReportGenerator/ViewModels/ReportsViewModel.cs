@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using TalkdeskReportGenerator.Library;
 
 namespace WpfTalkdeskReportGenerator.ViewModels
 {
@@ -250,7 +251,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _log.Info("ShellViewModel.GetTeamNamesAsync - Generating temporary, lightweight Excel");
             }
+
             TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPath);
+
             if (_log.IsInfoEnabled)
             {
                 _log.Info("ShellViewModel.GetTeamNamesAsync - Generating temporary, lightweight Excel complete");
@@ -261,10 +264,10 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _log.Debug($"ShellViewModel.GetTeamNamesAsync - TempExcelPath = { TempExcelPath }");
             }
 
-            Status = "Getting team names from Excel...";
+            Status = "Getting names from Excel...";
             if (_log.IsInfoEnabled)
             {
-                _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
+                _log.Info("ReportsViewmodel.GetTeamNamesAsync - " + Status);
             }
 
             ExcelCell groupByCell = new ExcelCell
@@ -275,9 +278,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
 
             string groupByName = await excelReader.GetGroupByNameAsync(TempExcelPath, groupByCell);
 
-            SelectNameText = $"Select { groupByName }";
-
             Names = await excelReader.GetNamesAsync(TempExcelPath, groupByCell);
+
+            SelectNameText = $"Select { groupByName }";
             Status = $"Please select { groupByName } name";
             if (_log.IsInfoEnabled)
             {

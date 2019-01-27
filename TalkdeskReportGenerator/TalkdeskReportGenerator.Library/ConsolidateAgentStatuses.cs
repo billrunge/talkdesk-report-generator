@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Library
 {
-    interface IConsolidateAgentStatuses
+    public interface IConsolidateAgentStatuses
     {
         List<AgentStatuses> Consolidate(List<AgentStatuses> agentStatusesList);
     }
-    class ConsolidateAgentStatuses : IConsolidateAgentStatuses
+    public class ConsolidateAgentStatuses : IConsolidateAgentStatuses
     {
         public List<AgentStatuses> Consolidate(List<AgentStatuses> agentStatusesList)
         {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Assemblies
 {
     public class AgentStartStops
     {

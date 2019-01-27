@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using log4net;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Library
 {
     public interface IExcelReader
     {
@@ -88,22 +88,32 @@ namespace WpfTalkdeskReportGenerator
 
             if (_log.IsDebugEnabled)
             {
-                _log.Debug($"ExcelReader.GetManagerNamesAsync - Creating a new file stream to extract  names from source Excel at { excelPath }");
+                _log.Debug($"ExcelReader.GetNamesAsync - Creating a new file stream to extract names from source Excel at { excelPath }");
             }
             using (FileStream fs = new FileStream(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 XLWorkbook excel = new XLWorkbook(fs);
                 int workSheetCount = excel.Worksheets.Count;
+
                 if (_log.IsDebugEnabled)
                 {
-                    _log.Debug($"ExcelReader.GetManagerNamesAsync - workSheetCount = { workSheetCount }");
+                    _log.Debug($"ExcelReader.GetNamesAsync - workSheetCount = { workSheetCount }");
                 }
 
                 IXLWorksheet worksheet = await Task.Run(() => excel.Worksheet(workSheetCount));
 
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"Created Worksheet");
+                }
+
                 string nameColumnHeader = worksheet.Row(groupByNameCell.Row)
                     .Cell(XLHelper.GetColumnNumberFromLetter(groupByNameCell.Column)).Value.ToString();
-                 
+
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.GetNamesAsync - nameColumnHeader = { nameColumnHeader }");
+                }
 
                 IXLRows rows = await Task.Run(() => worksheet.RowsUsed());
 
@@ -205,8 +215,6 @@ namespace WpfTalkdeskReportGenerator
                 _log.Error($@"ExcelReader.CreateLightweightExcelAsync - An error has occurred creating a working copy of the source Excel
                               { e.Message } {Environment.NewLine}
                               {e.StackTrace}");
-                MessageBox.Show($@"{ e.Message } {Environment.NewLine}
-                                   {e.StackTrace}");
             }
             return excelPath;
         }

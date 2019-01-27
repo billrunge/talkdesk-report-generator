@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Library
 {
-    internal interface IGetStatusesFromStartStops
+    public interface IGetStatusesFromStartStops
     {
         Task<List<AgentStatuses>> GetAgentStatusesListAsync(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day, TimeZoneInfo excelTimeZone);
     }
 
-    internal class GetStatusesFromStartStops : IGetStatusesFromStartStops
+    public class GetStatusesFromStartStops : IGetStatusesFromStartStops
     {
         public async Task<List<AgentStatuses>> GetAgentStatusesListAsync(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day, TimeZoneInfo excelTimeZone)
         {

@@ -1,7 +1,7 @@
 ﻿using log4net;
 using System.Data.SqlClient;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Assemblies
 {
     public interface IDatabase
     {

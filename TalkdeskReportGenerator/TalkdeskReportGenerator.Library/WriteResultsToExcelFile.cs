@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Library
 {
-    internal class WriteResultsToExcelFile : IWriteResults
+    public class WriteResultsToExcelFile : IWriteResults
     {
         public void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, string teamName, DateTime workbookDate)
         {

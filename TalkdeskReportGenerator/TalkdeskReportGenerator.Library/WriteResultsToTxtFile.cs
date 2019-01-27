@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Library
 {
-    internal interface IWriteResults
+    public interface IWriteResults
     {
         void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, string teamName, DateTime workbookDate);
     }
 
-    internal class WriteResultsToTxtFile : IWriteResults
+    public class WriteResultsToTxtFile : IWriteResults
     {
         public void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, string teamName, DateTime workbookDate)
         {

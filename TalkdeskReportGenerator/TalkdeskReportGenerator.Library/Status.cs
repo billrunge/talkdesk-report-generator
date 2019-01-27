@@ -1,6 +1,6 @@
-﻿namespace WpfTalkdeskReportGenerator
+﻿namespace TalkdeskReportGenerator.Library
 {
-    class Status
+    public class Status
     {
         public string DayName { get; set; }
         public string StatusLabel { get; set; }

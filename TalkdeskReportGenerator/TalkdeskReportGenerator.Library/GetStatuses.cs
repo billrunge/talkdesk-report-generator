@@ -5,15 +5,15 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator.Library
 {
-    internal interface IGetStatuses
+    public interface IGetStatuses
     {
         Task<string> GetUserIdFromNameAsync(string name);
         Task<List<Status>> GetStatusesListAsync(string userId, DateTime statusStart, DateTime statusEnd, int offset);
     }
 
-    internal class GetStatuses : IGetStatuses
+    public class GetStatuses : IGetStatuses
     {
         private IDatabase _database;
         private readonly ILog _log;
