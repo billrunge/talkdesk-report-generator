@@ -123,6 +123,30 @@ namespace WpfTalkdeskReportGenerator
             return await Task.Run(() => managerNames.Distinct().ToList());
         }
 
+        public async Task<string> GetGroupByNameAsync(string excelPath, ExcelCell groupByNameCell)
+        {
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug($"ExcelReader.GetGroupByNameAsync - Creating a new file stream to extract  names from source Excel at { excelPath }");
+            }
+
+            string groupName;
+
+            using (FileStream fs = new FileStream(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                XLWorkbook excel = new XLWorkbook(fs);
+                int workSheetCount = excel.Worksheets.Count;
+                if (_log.IsDebugEnabled)
+                {
+                    _log.Debug($"ExcelReader.GetGroupByNameAsync - workSheetCount = { workSheetCount }");
+                }
+                IXLWorksheet worksheet = excel.Worksheet(workSheetCount);
+                groupName = worksheet.Row(groupByNameCell.Row).Cell(XLHelper.GetColumnNumberFromLetter(groupByNameCell.Column)).Value.ToString(); 
+            }
+            return groupName;
+        }
+
+
         public async Task<string> CreateLightweightExcelAsync(string excelPath)
         {
             try

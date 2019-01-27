@@ -19,6 +19,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         private string _selectedName;
         private bool _getNamesRan;
         private List<string> _names;
+        private string _selectNameText;
 
         public string InputExcelPath
         {
@@ -86,6 +87,17 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 NotifyOfPropertyChange(() => Names);
                 NotifyOfPropertyChange(() => CanSetName);
                 NotifyOfPropertyChange(() => CanGetNames);
+            }
+        }
+        public string SelectNameText {
+            get
+            {
+                return _selectedName;
+            }
+            set
+            {
+                _selectedName = value;
+                NotifyOfPropertyChange(() => SelectNameText);
             }
         }
 
@@ -261,8 +273,12 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 Row = Properties.Settings.Default.GroupByNameRow
             };
 
+            string groupByName = await excelReader.GetGroupByNameAsync(TempExcelPath, groupByCell);
+
+            SelectNameText = $"Select { groupByName }";
+
             Names = await excelReader.GetNamesAsync(TempExcelPath, groupByCell);
-            Status = "Please select a manager name";
+            Status = $"Please select { groupByName } name";
             if (_log.IsInfoEnabled)
             {
                 _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);

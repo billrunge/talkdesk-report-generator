@@ -81,14 +81,14 @@
             Grid.Row="3" 
             Grid.Column="1" 
             Grid.ColumnSpan="3" 
-            Margin="10">Get Manager Names</Button>
+            Margin="10">Get Names</Button>
 
         <!-- Row 4 -->
 
         <ComboBox x:Name="SelectName"
                   ItemsSource="{Binding Names}"
                   SelectedItem="{Binding SelectedName}"
-                  Text="Select Name"
+                  Text="{Binding SelectNameText}"
                   Grid.Row="4"
                   Grid.Column="1"
                   Grid.ColumnSpan="3"
