@@ -20,7 +20,6 @@ namespace TalkdeskReportGenerator.ViewModels
         private string _selectedName;
         private bool _getNamesRan;
         private List<string> _names;
-        private string _selectNameText;
 
         public string InputExcelPath
         {
@@ -354,8 +353,8 @@ namespace TalkdeskReportGenerator.ViewModels
             if (_log.IsInfoEnabled)
             {
                 _log.Info("ShellViewModel.Exit - Exiting application from Exit() function");
-                Application.Current.Shutdown();
             }
+            Application.Current.Shutdown();
         }
 
         public void Settings()
