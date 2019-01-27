@@ -204,22 +204,21 @@ namespace TalkdeskReportGenerator.ViewModels
                 rootFolder = Properties.Settings.Default.OutputDirectory;
             }
 
-
-
             System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog()
             {
                 Description = "ShellViewModel.SetOutputPath - Select Output Folder",
                 ShowNewFolderButton = true,
                 SelectedPath = rootFolder
             };
+
             if (folderBrowser.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 OutputPath = folderBrowser.SelectedPath + @"\";
+                Properties.Settings.Default.OutputDirectory = Path.GetDirectoryName(OutputPath);
+                Properties.Settings.Default.Save();
                 if (_log.IsInfoEnabled)
                 {
                     _log.Info($"ShellViewModel.SetOutputPath - OuputPath set to { OutputPath }");
-                    Properties.Settings.Default.OutputDirectory = Path.GetDirectoryName(OutputPath);
-                    Properties.Settings.Default.Save();
                 }
             }
         }
