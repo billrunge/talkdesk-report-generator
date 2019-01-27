@@ -9,7 +9,7 @@
         FontSize="13"
         Title="Talkdesk Reporter" 
         FontFamily="Segoe UI Light"
-        Height="325" 
+        Height="300" 
         Width="380"         
         WindowStartupLocation="CenterScreen" 
         >

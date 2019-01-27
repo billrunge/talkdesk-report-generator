@@ -24,14 +24,14 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             }
         }
 
-        public List<string> TimeZones { get; set; }
+        public BindableCollection<TimeZoneInfo> TimeZoneInfos { get; set; }
 
         public SettingsViewModel()
         {
-            TimeZones = GetTimeZoneList();
+            TimeZoneInfos = GetTimeZoneInfoList();
             Settings = new SettingsModel
             {
-                ExcelTimeZone = Properties.Settings.Default.TimeZoneName,
+                ExcelTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(Properties.Settings.Default.TimeZoneId),
                 PhoneColorKeyCell = new ColumnRow
                 {
                     Column = Properties.Settings.Default.PhoneColorKeyColumn,
@@ -63,6 +63,17 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             return timeZoneNames;
         }
 
+        private BindableCollection<TimeZoneInfo> GetTimeZoneInfoList()
+        {
+            BindableCollection<TimeZoneInfo> timeZoneInfos = new BindableCollection<TimeZoneInfo>();
+
+            foreach (TimeZoneInfo tzi in TimeZoneInfo.GetSystemTimeZones().ToList())
+            {
+                timeZoneInfos.Add(tzi);
+            }
+            return timeZoneInfos;
+        }
+
 
 
         public void Back()
@@ -71,7 +82,7 @@ namespace WpfTalkdeskReportGenerator.ViewModels
         }
         public void Save()
         {
-            Properties.Settings.Default.TimeZoneName = Settings.ExcelTimeZone;
+            Properties.Settings.Default.TimeZoneId = Settings.ExcelTimeZoneInfo.Id;
             Properties.Settings.Default.PhoneColorKeyColumn = Settings.PhoneColorKeyCell.Column;
             Properties.Settings.Default.PhoneColorKeyRow = Settings.PhoneColorKeyCell.Row;
             Properties.Settings.Default.GroupByNameColumn = Settings.GroupByNameCell.Column;

@@ -20,7 +20,7 @@
     <Setting Name="TwelveAmColumn" Type="System.String" Scope="User">
       <Value Profile="(Default)">H</Value>
     </Setting>
-    <Setting Name="TimeZoneName" Type="System.String" Scope="User">
+    <Setting Name="TimeZoneId" Type="System.String" Scope="User">
       <Value Profile="(Default)">Central Standard Time</Value>
     </Setting>
     <Setting Name="InputDirectory" Type="System.String" Scope="User">

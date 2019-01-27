@@ -12,7 +12,8 @@ namespace WpfTalkdeskReportGenerator.Models
         public ColumnRow GroupByNameCell { get; set; }
         public string AgentNameColumn { get; set; }
         public string TwelveAmColumn { get; set; }
-        public string ExcelTimeZone { get; set; }
+        public TimeZoneInfo ExcelTimeZoneInfo { get; set; }
+
     }
 
     public class ColumnRow

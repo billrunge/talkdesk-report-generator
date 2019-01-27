@@ -6,23 +6,15 @@ namespace WpfTalkdeskReportGenerator
 {
     internal interface IGetStatusesFromStartStops
     {
-        Task<List<AgentStatuses>> GetAgentStatusesListAsync(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day);
+        Task<List<AgentStatuses>> GetAgentStatusesListAsync(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day, TimeZoneInfo excelTimeZone);
     }
 
     internal class GetStatusesFromStartStops : IGetStatusesFromStartStops
     {
-        private readonly TimeZoneInfo _excelTimeZone;
-
-        public GetStatusesFromStartStops()
-        {
-            _excelTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
-
-        }
-
-        public async Task<List<AgentStatuses>> GetAgentStatusesListAsync(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day)
+        public async Task<List<AgentStatuses>> GetAgentStatusesListAsync(IGetStatuses getStatuses, List<AgentStartStops> agentStartStops, DateTime day, TimeZoneInfo excelTimeZone)
         {
             List<AgentStatuses> agentStatusesList = new List<AgentStatuses>();
-            int utcOffset = Math.Abs(_excelTimeZone.GetUtcOffset(day).Hours);
+            int utcOffset = Math.Abs(excelTimeZone.GetUtcOffset(day).Hours);
 
             List<Task<AgentStatuses>> tasks = new List<Task<AgentStatuses>>();
 

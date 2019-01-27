@@ -98,12 +98,12 @@ namespace WpfTalkdeskReportGenerator.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Central Standard Time")]
-        public string TimeZoneName {
+        public string TimeZoneId {
             get {
-                return ((string)(this["TimeZoneName"]));
+                return ((string)(this["TimeZoneId"]));
             }
             set {
-                this["TimeZoneName"] = value;
+                this["TimeZoneId"] = value;
             }
         }
         

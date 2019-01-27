@@ -306,7 +306,10 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
             }
-            List<AgentStatuses> agentStatuses = await getStatusesFromStartStops.GetAgentStatusesListAsync(getStatuses, startStopList, day);
+
+            TimeZoneInfo excelTimeZone = TimeZoneInfo.FindSystemTimeZoneById(Properties.Settings.Default.TimeZoneId);
+
+            List<AgentStatuses> agentStatuses = await getStatusesFromStartStops.GetAgentStatusesListAsync(getStatuses, startStopList, day, excelTimeZone);
             IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
 
             List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));

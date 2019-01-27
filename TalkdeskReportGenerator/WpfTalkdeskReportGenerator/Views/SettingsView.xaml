@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              FontSize="13"
              Background="White"
-             d:DesignHeight="300" 
+             d:DesignHeight="250" 
              d:DesignWidth="380">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -34,107 +34,108 @@
         <!-- Row 1 -->
         <TextBlock Grid.Row="1" 
                    Grid.Column="1"
-                   Margin="10">Excel Time Zone</TextBlock>
+                   Margin="5">Excel Time Zone</TextBlock>
         
         <ComboBox x:Name="SelectTimeZone"
-                  ItemsSource="{Binding TimeZones}"
-                  SelectedItem="{Binding Settings.ExcelTimeZone, Mode=TwoWay}"
+                  ItemsSource="{Binding Path=TimeZoneInfos}"
+                  SelectedItem="{Binding Path=Settings.ExcelTimeZoneInfo, Mode=TwoWay}"
+                  
                   Grid.Row="1"
                   Grid.Column="2"
                   Grid.ColumnSpan="5"
                   IsEditable="True" 
-                  Margin="10"
+                  Margin="5"
                   IsReadOnly="True">
         </ComboBox>
         
         <!-- Row 2 -->
         <TextBlock Grid.Row="2" 
                    Grid.Column="1"
-                   Margin="10">Phone Color Key Cell</TextBlock>
+                   Margin="5">Phone Color Key Cell</TextBlock>
         
         <TextBlock Grid.Row="2" 
                    Grid.Column="2"
-                   Margin="10">Column: </TextBlock>
+                   Margin="5">Column: </TextBlock>
 
         <TextBox Grid.Row="2" 
                  Grid.Column="3"
                  Text="{Binding Settings.PhoneColorKeyCell.Column}"
-                 Margin="10" />
+                 Margin="5" />
 
         <TextBlock Grid.Row="2" 
                    Grid.Column="4"
-                   Margin="10">Row: </TextBlock>
+                   Margin="5">Row: </TextBlock>
 
         <TextBox Grid.Row="2" 
                  Grid.Column="5"
                  Text="{Binding Settings.PhoneColorKeyCell.Row}"
-                 Margin="10" />
+                 Margin="5" />
         
         <!-- Row 3 -->
 
         <TextBlock Grid.Row="3" 
                    Grid.Column="1"
-                   Margin="10">Group By Name Cell</TextBlock>
+                   Margin="5">Group By Name Cell</TextBlock>
 
         <TextBlock Grid.Row="3" 
                    Grid.Column="2"
-                   Margin="10">Column:</TextBlock>
+                   Margin="5">Column:</TextBlock>
 
         <TextBox Grid.Row="3" 
                  Grid.Column="3"
                  Text="{Binding Settings.GroupByNameCell.Column}"
-                 Margin="10" />
+                 Margin="5" />
 
         <TextBlock Grid.Row="3" 
                    Grid.Column="4"
-                   Margin="10">Row:</TextBlock>
+                   Margin="5">Row:</TextBlock>
 
         <TextBox Grid.Row="3" 
                  Grid.Column="5"
                  Text="{Binding Settings.GroupByNameCell.Row}"
-                 Margin="10" />
+                 Margin="5" />
 
         <!-- Row 4 -->
 
         <TextBlock Grid.Row="4" 
                    Grid.Column="1"
-                   Margin="10">Agent Name Column</TextBlock>
+                   Margin="5">Agent Name Column</TextBlock>
 
         <TextBlock Grid.Row="4" 
                    Grid.Column="2"
-                   Margin="10">Column: </TextBlock>
+                   Margin="5">Column: </TextBlock>
 
         <TextBox Grid.Row="4" 
                  Grid.Column="3"
                  Text="{Binding Settings.AgentNameColumn}"
-                 Margin="10" />
+                 Margin="5" />
         
         <!-- Row 5-->
 
         <TextBlock Grid.Row="5" 
                    Grid.Column="1"
-                   Margin="10">12AM Column</TextBlock>
+                   Margin="5">12AM Column</TextBlock>
 
         <TextBlock Grid.Row="5" 
                    Grid.Column="2"
-                   Margin="10">Column:</TextBlock>
+                   Margin="5">Column:</TextBlock>
 
         <TextBox Grid.Row="5" 
                  Grid.Column="3"
                  Text="{Binding Settings.TwelveAmColumn}"
-                 Margin="10" />
+                 Margin="5" />
 
         <!-- Row 6 -->
         <Button Grid.Row="6" 
                 Grid.Column="1" 
                 Name="Back"
-                Margin="10">Back</Button>
+                Margin="5">Back</Button>
 
         <Button Grid.Row="6" 
                 Grid.Column="2" 
                 Grid.ColumnSpan="2"
                 Name="Save"
-                Margin="10">Save</Button>
+                Margin="5">Save</Button>
 
 
 
