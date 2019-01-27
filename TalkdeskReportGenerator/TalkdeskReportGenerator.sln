@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2041
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalkdeskReportGenerator", "WpfTalkdeskReportGenerator\TalkdeskReportGenerator.csproj", "{6E136E3C-E2AE-411F-A49C-D30BD8ABCB7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalkdeskReportGenerator", "TalkdeskReportGenerator\TalkdeskReportGenerator.csproj", "{6E136E3C-E2AE-411F-A49C-D30BD8ABCB7E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalkdeskReportGenerator.Library", "TalkdeskReportGenerator.Library\TalkdeskReportGenerator.Library.csproj", "{9C150E01-2A0A-4DF6-AF80-C7C2501A04EF}"
 EndProject
