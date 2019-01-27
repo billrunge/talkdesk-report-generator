@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfTalkdeskReportGenerator.ViewModels
+namespace TalkdeskReportGenerator.ViewModels
 {
     public class ShellViewModel : Conductor<Object>
     {

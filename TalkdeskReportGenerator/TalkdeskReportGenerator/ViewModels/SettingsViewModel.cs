@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using WpfTalkdeskReportGenerator.Models;
+using TalkdeskReportGenerator.Models;
 
-namespace WpfTalkdeskReportGenerator.ViewModels
+namespace TalkdeskReportGenerator.ViewModels
 {
     public class SettingsViewModel : Screen
     { 

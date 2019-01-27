@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using TalkdeskReportGenerator.Library;
 
-namespace WpfTalkdeskReportGenerator.ViewModels
+namespace TalkdeskReportGenerator.ViewModels
 {
     public class ReportsViewModel : Screen
     {

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using WpfTalkdeskReportGenerator.ViewModels;
+using TalkdeskReportGenerator.ViewModels;
 
-namespace WpfTalkdeskReportGenerator
+namespace TalkdeskReportGenerator
 {
     public class Bootstrapper : BootstrapperBase
     {
