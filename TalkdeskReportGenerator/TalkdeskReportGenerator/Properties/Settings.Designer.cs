@@ -130,5 +130,16 @@ namespace TalkdeskReportGenerator.Properties {
                 this["OutputDirectory"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Generic.List<System.String> TemporaryExcelPaths {
+            get {
+                return ((global::System.Collections.Generic.List<System.String>)(this["TemporaryExcelPaths"]));
+            }
+            set {
+                this["TemporaryExcelPaths"] = value;
+            }
+        }
     }
 }
