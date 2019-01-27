@@ -102,6 +102,7 @@
     </Compile>
     <Compile Include="ConsolidateAgentStatuses.cs" />
     <Compile Include="Database.cs" />
+    <Compile Include="ExcelCell.cs" />
     <Compile Include="ExcelRowRange.cs" />
     <Compile Include="ExcelReader.cs" />
     <Compile Include="GetStatuses.cs" />

@@ -13,8 +13,8 @@ namespace WpfTalkdeskReportGenerator
 {
     public interface IExcelReader
     {
-        Task<List<AgentStartStops>> GetAgentStartStopListAsync(string filePath, string teamName);
-        Task<List<string>> GetNamesAsync(string filePath);
+        Task<List<AgentStartStops>> GetAgentStartStopListAsync(string filePath, string teamName, string agentNameColumn, string twelveAmColumn, ExcelCell groupByNameCell, ExcelCell phoneColorKeyCell);
+        Task<List<string>> GetNamesAsync(string filePath, ExcelCell groupByNameCell);
         Task<string> CreateLightweightExcelAsync(string filePath);
         Task DeleteExcelAsync(string filePath);
         DateTime WorksheetDay { get; }
@@ -22,35 +22,20 @@ namespace WpfTalkdeskReportGenerator
 
     public class ExcelReader : IExcelReader
     {
-        private string _columnName;
-        private readonly string _phoneTimeCellFill;
-        private readonly int _nameColumn;
-        private readonly string _nameColumnHeader;
-        private readonly int _agentNameColumn;
-        private readonly int _twelveAmColumn;
-        private readonly int _elevenPmColumn;
         private readonly ILog _log;
-
         private Workbook workbook;
         public DateTime WorksheetDay { get; private set; }
 
         public ExcelReader(ILog log)
         {
-            _phoneTimeCellFill = "Solid Color Theme: Accent1, Tint: 0.799981688894314";
-            _nameColumn = 6;
-            _nameColumnHeader = "Agent Manager";
-           _agentNameColumn = 7;
-            _twelveAmColumn = 8;
-            _elevenPmColumn = _twelveAmColumn + 23;
             _log = log;
         }
 
-        public async Task<List<AgentStartStops>> GetAgentStartStopListAsync(string excelPath, string columnName)
+        public async Task<List<AgentStartStops>> GetAgentStartStopListAsync(string excelPath, string columnName, string agentNameColumn, string twelveAmColumn, ExcelCell groupByNameCell, ExcelCell phoneColorKeyCell)
         {
-            _columnName = columnName;
-            if (_log.IsDebugEnabled)
+            if (_log.IsDebugEnabled)    
             {
-                _log.Debug($"ExcelReader.GetAgentStartStopListAsync - Setting _teamNAme = { _columnName }");
+                _log.Debug($"ExcelReader.GetAgentStartStopListAsync - Setting _teamName = { columnName }");
             }
 
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
@@ -71,7 +56,7 @@ namespace WpfTalkdeskReportGenerator
 
                 IXLWorksheet lastWorksheet = await Task.Run(() => excel.Worksheet(workSheetCount));
 
-                List<int> teamRows = await GetTeamRowsAsync(lastWorksheet);
+                List<int> teamRows = await GetTeamRowsAsync(lastWorksheet, columnName, groupByNameCell);
 
                 await SetWorksheetDateAsync(lastWorksheet);
                 if (_log.IsDebugEnabled)
@@ -83,7 +68,7 @@ namespace WpfTalkdeskReportGenerator
 
                 foreach (int row in teamRows)
                 {
-                    tasks.Add(GetAgentStartStopFromRowAsync(lastWorksheet, row));
+                    tasks.Add(GetAgentStartStopFromRowAsync(lastWorksheet, row, agentNameColumn, twelveAmColumn, phoneColorKeyCell));
                 }
 
                 AgentStartStops[] results = await Task.WhenAll(tasks);
@@ -97,13 +82,13 @@ namespace WpfTalkdeskReportGenerator
             return startStopList;
         }  
 
-        public async Task<List<string>> GetNamesAsync(string excelPath)
+        public async Task<List<string>> GetNamesAsync(string excelPath, ExcelCell groupByNameCell)
         {
             List<string> managerNames = new List<string>();
 
             if (_log.IsDebugEnabled)
             {
-                _log.Debug($"ExcelReader.GetManagerNamesAsync - Creating a new file stream to extract manager names from source Excel at { excelPath }");
+                _log.Debug($"ExcelReader.GetManagerNamesAsync - Creating a new file stream to extract  names from source Excel at { excelPath }");
             }
             using (FileStream fs = new FileStream(excelPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -116,12 +101,16 @@ namespace WpfTalkdeskReportGenerator
 
                 IXLWorksheet worksheet = await Task.Run(() => excel.Worksheet(workSheetCount));
 
-                IXLRows col = await Task.Run(() => worksheet.RowsUsed());
+                string nameColumnHeader = worksheet.Row(groupByNameCell.Row)
+                    .Cell(XLHelper.GetColumnNumberFromLetter(groupByNameCell.Column)).Value.ToString();
+                 
 
-                foreach (IXLRow row in col)
+                IXLRows rows = await Task.Run(() => worksheet.RowsUsed());
+
+                foreach (IXLRow row in rows)
                 {
-                    string cellValue = row.Cell(_nameColumn).Value.ToString().Trim();
-                    if (!(string.IsNullOrEmpty(cellValue) || cellValue == _nameColumnHeader))
+                    string cellValue = row.Cell(XLHelper.GetColumnNumberFromLetter(groupByNameCell.Column)).Value.ToString().Trim();
+                    if (!(string.IsNullOrEmpty(cellValue) || cellValue == nameColumnHeader))
                     {
                         if (_log.IsDebugEnabled)
                         {
@@ -198,7 +187,7 @@ namespace WpfTalkdeskReportGenerator
             return excelPath;
         }
 
-        private async Task<List<int>> GetTeamRowsAsync(IXLWorksheet worksheet)
+        private async Task<List<int>> GetTeamRowsAsync(IXLWorksheet worksheet,string columnName, ExcelCell groupByNameCell)
         {
             List<int> teamRows = new List<int>();
             IXLRows col = await Task.Run(() => worksheet.RowsUsed());
@@ -206,13 +195,15 @@ namespace WpfTalkdeskReportGenerator
             foreach (IXLRow row in col)
             {
 
-                if (!int.TryParse(await Task.Run(() => Regex.Replace(row.Cell(_nameColumn).Address.ToString(), "[^0-9.]", "")), out int currentRowAddress))
+                int columnNumber = XLHelper.GetColumnNumberFromLetter(groupByNameCell.Column);
+
+                if (!int.TryParse(await Task.Run(() => Regex.Replace(row.Cell(columnNumber).Address.ToString(), "[^0-9.]", "")), out int currentRowAddress))
                 {
                     throw new InvalidCastException("Unable to parse row int from cell address resturned from Excel");
                 }
 
 
-                if (row.Cell(_nameColumn).Value.ToString().Trim() == _columnName)
+                if (row.Cell(columnNumber).Value.ToString().Trim() == columnName)
                 {
                     if (_log.IsDebugEnabled)
                     {
@@ -251,7 +242,7 @@ namespace WpfTalkdeskReportGenerator
             WorksheetDay = new DateTime(year, month, day);
         }
 
-        private async Task<AgentStartStops> GetAgentStartStopFromRowAsync(IXLWorksheet worksheet, int rowNumber)
+        private async Task<AgentStartStops> GetAgentStartStopFromRowAsync(IXLWorksheet worksheet, int rowNumber, string agentNameColumn, string twelveAmColumn, ExcelCell phoneColorKeyCell)
         {
             AgentStartStops agentStartStop = new AgentStartStops();
             List<int> phoneTimeColumns = new List<int>();
@@ -262,15 +253,16 @@ namespace WpfTalkdeskReportGenerator
             }
             IXLRow row = await Task.Run(() => worksheet.Row(rowNumber));
 
-            agentStartStop.AgentName = row.Cell(_agentNameColumn).Value.ToString();
+            agentStartStop.AgentName = row.Cell(XLHelper.GetColumnNumberFromLetter(agentNameColumn)).Value.ToString();
             if (_log.IsDebugEnabled)
             {
                 _log.Debug($"ExcelReader.GetAgentStartStopFromRowAsync - Setting AgentName = { agentStartStop.AgentName }");
             }
+            int twelveAmColumnInt = XLHelper.GetColumnNumberFromLetter(twelveAmColumn);
 
-            for (int i = _twelveAmColumn; i <= _elevenPmColumn; i++)
+            for (int i = twelveAmColumnInt; i <= twelveAmColumnInt + 23; i++)
             {
-                if (row.Cell(i).Style.Fill.ToString() == _phoneTimeCellFill)
+                if (row.Cell(i).Style.Fill.ToString() == await GetPhoneTimeCellFill(worksheet, phoneColorKeyCell))
                 {
                     if (_log.IsDebugEnabled)
                     {
@@ -284,7 +276,7 @@ namespace WpfTalkdeskReportGenerator
 
             foreach (int column in phoneTimeColumns)
             {
-                tasks.Add(GetStartStopByCellPositionAsync(column - _twelveAmColumn));
+                tasks.Add(GetStartStopByCellPositionAsync(column - twelveAmColumnInt));
             }
 
             StartStop[] results = await Task.WhenAll(tasks);
@@ -326,6 +318,14 @@ namespace WpfTalkdeskReportGenerator
             }
 
             await Task.Run(() => File.Delete(excelPath));
+        }
+
+
+        private async Task<string> GetPhoneTimeCellFill(IXLWorksheet worksheet, ExcelCell excelCell)
+        {
+            IXLRow sheetRow = await Task.Run(() => worksheet.Row(excelCell.Row));
+            IXLCell cell = await Task.Run(() => sheetRow.Cell(XLHelper.GetColumnNumberFromLetter(excelCell.Column)));
+            return cell.Style.Fill.ToString();
         }
 
     }

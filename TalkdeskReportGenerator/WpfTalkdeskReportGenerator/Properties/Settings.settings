@@ -23,5 +23,11 @@
     <Setting Name="TimeZoneName" Type="System.String" Scope="User">
       <Value Profile="(Default)">Central Standard Time</Value>
     </Setting>
+    <Setting Name="InputDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\</Value>
+    </Setting>
+    <Setting Name="OutputDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

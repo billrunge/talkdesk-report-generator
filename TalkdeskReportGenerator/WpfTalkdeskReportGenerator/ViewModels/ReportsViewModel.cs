@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -113,11 +114,23 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _log.Debug("ShellViewModel.SetExcelPath - Opening file dialog");
             }
 
+            string initDirectory;
+
+            if (string.IsNullOrEmpty(Properties.Settings.Default.InputDirectory))
+            {
+                initDirectory = @"C:\";
+            }
+            else
+            {
+                initDirectory = Properties.Settings.Default.InputDirectory;
+            }
+            
+
             OpenFileDialog fileDialog = new OpenFileDialog
             {
                 Title = "Open Schedule Excel",
                 Filter = "Excel Files|*.xlsx; *.xlsb",
-                InitialDirectory = @"C:\"
+                InitialDirectory = initDirectory
             };
 
             if (_log.IsDebugEnabled)
@@ -128,7 +141,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             if (fileDialog.ShowDialog() == true)
             {
                 InputExcelPath = fileDialog.FileName.ToString();
+                Properties.Settings.Default.InputDirectory = Path.GetDirectoryName(InputExcelPath);
                 _log.Info($"ShellViewModel.SetExcelPath - InputExcelPath set to { InputExcelPath }");
+                Properties.Settings.Default.Save();
             }
 
         }
@@ -152,6 +167,9 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 {
                     _log.Info($"ShellViewModel.Clear - Deleting the temporary file: { TempExcelPath }");
                 }
+                string agentNameColumn = Properties.Settings.Default.AgentNameColumn;
+
+
                 ExcelReader excelReader = new ExcelReader(_log);
                 await excelReader.DeleteExcelAsync(TempExcelPath);
                 TempExcelPath = null;
@@ -164,10 +182,23 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _log.Debug("ShellViewModel.SetOutputPath - Opening Folder Browser Dialog");
             }
+            string rootFolder;
+
+            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.OutputDirectory)){
+                rootFolder = @"C:\";
+            }
+            else
+            {
+                rootFolder = Properties.Settings.Default.OutputDirectory;
+            }
+
+
+
             System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog()
             {
                 Description = "ShellViewModel.SetOutputPath - Select Output Folder",
-                ShowNewFolderButton = true
+                ShowNewFolderButton = true,
+                SelectedPath = rootFolder
             };
             if (folderBrowser.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -175,6 +206,8 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 if (_log.IsInfoEnabled)
                 {
                     _log.Info($"ShellViewModel.SetOutputPath - OuputPath set to { OutputPath }");
+                    Properties.Settings.Default.OutputDirectory = Path.GetDirectoryName(OutputPath);
+                    Properties.Settings.Default.Save();
                 }
             }
         }
@@ -222,7 +255,13 @@ namespace WpfTalkdeskReportGenerator.ViewModels
                 _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
             }
 
-            Names = await excelReader.GetNamesAsync(TempExcelPath);
+            ExcelCell groupByCell = new ExcelCell
+            {
+                Column = Properties.Settings.Default.GroupByNameColumn,
+                Row = Properties.Settings.Default.GroupByNameRow
+            };
+
+            Names = await excelReader.GetNamesAsync(TempExcelPath, groupByCell);
             Status = "Please select a manager name";
             if (_log.IsInfoEnabled)
             {
@@ -241,7 +280,23 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             {
                 _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
             }
-            List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(TempExcelPath, SelectedName);
+
+            ExcelCell groupByNameCell = new ExcelCell()
+            {
+                Column = Properties.Settings.Default.GroupByNameColumn,
+                Row = Properties.Settings.Default.GroupByNameRow
+            };
+
+            ExcelCell phoneColorKeyCell = new ExcelCell()
+            {
+                Column = Properties.Settings.Default.PhoneColorKeyColumn,
+                Row = Properties.Settings.Default.PhoneColorKeyRow
+            };
+
+            string agentNameColumn = Properties.Settings.Default.AgentNameColumn;
+            string twelveAmColumn = Properties.Settings.Default.TwelveAmColumn;
+
+            List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(TempExcelPath, SelectedName, agentNameColumn, twelveAmColumn, groupByNameCell, phoneColorKeyCell);
 
             IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
             DateTime day = excelReader.WorksheetDay;
@@ -286,18 +341,10 @@ namespace WpfTalkdeskReportGenerator.ViewModels
             ActivateWindow.ViewSettings();
         }
 
-        //protected override void OnDeactivate(bool close)
-        //{
-        //    if (!string.IsNullOrWhiteSpace(TempExcelPath))
-        //    {
-        //        ExcelReader excelReader = new ExcelReader(_log);
-        //        Task.Run(async () => await excelReader.DeleteExcelAsync(TempExcelPath));
-        //    }
-        //}
 
         public void About()
         {
-            MessageBox.Show("2018 Relativity ODA LLC.");
+            MessageBox.Show("2019 Relativity ODA LLC.");
         }
     }
 }
