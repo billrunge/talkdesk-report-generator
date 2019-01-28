@@ -1,23 +1,40 @@
 ﻿using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
+
 using System.Threading.Tasks;
+using TalkdeskReportGenerator.Library;
 
 namespace TalkdeskReportGenerator.ViewModels
 {
     public class ShellViewModel : Conductor<Object>
     {
-                     
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public ShellViewModel()
         {
             ActivateWindow.ShellView = this;
             ActivateWindow.ViewReports();
         }
 
-    }
+        public async Task OnClose(CancelEventArgs args)
+        {
+            foreach (string tempExcelPath in Properties.Settings.Default.TemporaryExcelPaths)
+            {
+                if (!string.IsNullOrWhiteSpace(tempExcelPath))
+                {
+                    _log.Info($"ShellViewModel.OnClose - Deleting the temporary file: { tempExcelPath }");
+                    ExcelReader excelReader = new ExcelReader(_log);
+                    await excelReader.DeleteExcelAsync(tempExcelPath);
+                }
+            }
 
+            Properties.Settings.Default.TemporaryExcelPaths = new List<string>();
+            Properties.Settings.Default.Save();
+
+        }
+    }
     public static class ActivateWindow
     {
         public static ShellViewModel ShellView;

@@ -2,7 +2,6 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,7 +31,6 @@ namespace TalkdeskReportGenerator.ViewModels
                 NotifyOfPropertyChange(() => CanSetExcelPath);
             }
         }
-
         public string OutputPath
         {
             get => _outputPath;
@@ -101,8 +99,6 @@ namespace TalkdeskReportGenerator.ViewModels
             }
         }
 
-
-
         public bool CanGetNames => (string.IsNullOrWhiteSpace(InputExcelPath) || string.IsNullOrWhiteSpace(OutputPath) || Names.Count > 0 || GetNamesRan) ? false : true;
         public bool CanSetExcelPath => (string.IsNullOrWhiteSpace(InputExcelPath)) ? true : false;
         public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
@@ -117,6 +113,7 @@ namespace TalkdeskReportGenerator.ViewModels
             }
             Names = new List<string>();
             GetNamesRan = false;
+            Properties.Settings.Default.TemporaryExcelPaths = new List<string>();
         }
 
         public void SetExcelPath()
@@ -172,20 +169,25 @@ namespace TalkdeskReportGenerator.ViewModels
             Names = new List<string>();
             GetNamesRan = false;
             Status = "";
+            TempExcelPath = null;
 
-            if (!string.IsNullOrWhiteSpace(TempExcelPath))
+            foreach (string tempExcelPath in Properties.Settings.Default.TemporaryExcelPaths)
             {
-                if (_log.IsInfoEnabled)
+                if (!string.IsNullOrWhiteSpace(tempExcelPath))
                 {
-                    _log.Info($"ShellViewModel.Clear - Deleting the temporary file: { TempExcelPath }");
+                    if (_log.IsInfoEnabled)
+                    {
+                        _log.Info($"ReportsViewModel.Clear - Deleting the temporary file: { tempExcelPath }");
+                    }
+
+                    ExcelReader excelReader = new ExcelReader(_log);
+                    await excelReader.DeleteExcelAsync(tempExcelPath);
                 }
-                string agentNameColumn = Properties.Settings.Default.AgentNameColumn;
-
-
-                ExcelReader excelReader = new ExcelReader(_log);
-                await excelReader.DeleteExcelAsync(TempExcelPath);
-                TempExcelPath = null;
             }
+
+            Properties.Settings.Default.TemporaryExcelPaths = new List<string>();
+            Properties.Settings.Default.Save();
+
         }
 
         public void SetOutputPath()
@@ -206,7 +208,7 @@ namespace TalkdeskReportGenerator.ViewModels
 
             System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog()
             {
-                Description = "ShellViewModel.SetOutputPath - Select Output Folder",
+                Description = "Select Output Folder",
                 ShowNewFolderButton = true,
                 SelectedPath = rootFolder
             };
@@ -244,13 +246,14 @@ namespace TalkdeskReportGenerator.ViewModels
 
             ExcelReader excelReader = await Task.Run(() => new ExcelReader(_log));
 
-
             if (_log.IsInfoEnabled)
             {
                 _log.Info("ShellViewModel.GetTeamNamesAsync - Generating temporary, lightweight Excel");
             }
 
             TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPath);
+
+            Properties.Settings.Default.TemporaryExcelPaths.Add(TempExcelPath);
 
             if (_log.IsInfoEnabled)
             {
@@ -360,7 +363,6 @@ namespace TalkdeskReportGenerator.ViewModels
         {
             ActivateWindow.ViewSettings();
         }
-
 
         public void About()
         {
