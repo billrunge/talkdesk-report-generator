@@ -43,7 +43,7 @@
             Background="#d9d9d9"
             BorderThickness="0"            
             >
-            Set Excel Path
+            Set Excel Path(s)
         </Button>
 
         <Button 
@@ -132,7 +132,7 @@
             x:Name="Status"
             Grid.Row="6"
             Grid.Column="1"
-            Grid.ColumnSpan="3"
+            Grid.ColumnSpan="4"
             Margin="3, 0, 0, 0">
         </TextBlock>
 

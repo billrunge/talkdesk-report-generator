@@ -19,6 +19,7 @@ namespace TalkdeskReportGenerator.ViewModels
         private string _status;
         private string _selectedName;
         private bool _getNamesRan;
+        private bool _reportRan;
         private List<string> _names;
 
         public List<string> InputExcelPaths
@@ -74,6 +75,18 @@ namespace TalkdeskReportGenerator.ViewModels
                 NotifyOfPropertyChange(() => CanGetNames);
             }
         }
+        public bool ReportRan
+        { get
+            {
+                return _reportRan;
+            }
+            set
+            {
+                _reportRan = value;
+                NotifyOfPropertyChange(() => CanGenerateReport);
+                NotifyOfPropertyChange(() => CanSetName);
+            }
+        }
         public List<string> Names
         {
             get => _names;
@@ -105,6 +118,7 @@ namespace TalkdeskReportGenerator.ViewModels
             InputExcelPaths = new List<string>();
             TempExcelPaths = new List<string>();
             GetNamesRan = false;
+            ReportRan = false;
             Properties.Settings.Default.TemporaryExcelPaths = new List<string>();
 
         }
@@ -112,8 +126,8 @@ namespace TalkdeskReportGenerator.ViewModels
         public bool CanGetNames => (InputExcelPaths.Count < 1 || string.IsNullOrWhiteSpace(OutputPath) || Names.Count > 0 || GetNamesRan) ? false : true;
         public bool CanSetExcelPath => (InputExcelPaths.Count < 1) ? true : false;
         public bool CanSetOutputPath => (string.IsNullOrWhiteSpace(OutputPath)) ? true : false;
-        public bool CanSetName => (Names.Count > 0) ? true : false;
-        public bool CanGenerateReport => (string.IsNullOrWhiteSpace(SelectedName)) ? false : true;
+        public bool CanSetName => (Names.Count > 0 && !ReportRan) ? true : false;
+        public bool CanGenerateReport => (string.IsNullOrWhiteSpace(SelectedName) || ReportRan) ? false : true;
 
 
         public void SetExcelPath()
@@ -179,6 +193,7 @@ namespace TalkdeskReportGenerator.ViewModels
             SelectedName = null;
             Names = new List<string>();
             GetNamesRan = false;
+            ReportRan = false;
             Status = "";
             TempExcelPaths = new List<string>();
 
@@ -245,7 +260,7 @@ namespace TalkdeskReportGenerator.ViewModels
             }
             await Task.Run(() => GetNamesRan = true);
 
-            Status = "Generating a working copy Excel...";
+            Status = $"Generating a working copy Excel...";
             if (_log.IsInfoEnabled)
             {
                 _log.Info("ShellViewModel.GetTeamNamesAsync - " + Status);
@@ -263,7 +278,9 @@ namespace TalkdeskReportGenerator.ViewModels
                 _log.Info("ShellViewModel.GetTeamNamesAsync - Generating temporary, lightweight Excel");
             }
 
-            TempExcelPaths.Add(await excelReader.CreateLightweightExcelAsync(InputExcelPaths[0]));
+            string tempPath = await excelReader.CreateLightweightExcelAsync(InputExcelPaths[0]);
+            TempExcelPaths.Add(tempPath);
+            Properties.Settings.Default.TemporaryExcelPaths.Add(tempPath);
 
             if (_log.IsInfoEnabled)
             {
@@ -301,13 +318,19 @@ namespace TalkdeskReportGenerator.ViewModels
 
         public async Task GenerateReportAsync()
         {
+            ReportRan = true;
             IDatabase db = new Database(_log);
             IGetStatuses getStatuses = new GetStatuses(db, _log);
             ExcelReader excelReader = new ExcelReader(_log);
 
-            for (int i = 1; i < InputExcelPaths.Count; i++)
+            int inputExcelPathsCount = InputExcelPaths.Count;
+
+            for (int i = 1; i < inputExcelPathsCount; i++)
             {
-                TempExcelPaths.Add(await excelReader.CreateLightweightExcelAsync(InputExcelPaths[i]));
+                Status = $"Generating working copy Excel { (i + 1).ToString() } of { inputExcelPathsCount.ToString() }...";
+                string tempPath = await excelReader.CreateLightweightExcelAsync(InputExcelPaths[i]);
+                TempExcelPaths.Add(tempPath);
+                Properties.Settings.Default.TemporaryExcelPaths.Add(tempPath);
             }
 
             ExcelCell groupByNameCell = new ExcelCell()
@@ -322,9 +345,10 @@ namespace TalkdeskReportGenerator.ViewModels
                 Row = Properties.Settings.Default.PhoneColorKeyRow
             };
 
+            int currentExcelCount = 1;
             foreach (string tempExcelPath in TempExcelPaths)
             {
-                Status = "Reading Excel...";
+                Status = $"Reading Excel { currentExcelCount.ToString() } of {  inputExcelPathsCount.ToString() }...";
                 if (_log.IsInfoEnabled)
                 {
                     _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
@@ -338,7 +362,7 @@ namespace TalkdeskReportGenerator.ViewModels
                 IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
                 DateTime day = excelReader.WorksheetDay;
 
-                Status = "Retrieving agent statuses...";
+                Status = $"Retrieving agent statuses for Excel  { currentExcelCount.ToString() } of {  inputExcelPathsCount.ToString() }...";
                 if (_log.IsInfoEnabled)
                 {
                     _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
@@ -350,7 +374,7 @@ namespace TalkdeskReportGenerator.ViewModels
                 IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
 
                 List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));
-                Status = "Writing results to file...";
+                Status = $"Writing results to file for Excel  { currentExcelCount.ToString() } of {  inputExcelPathsCount.ToString() }...";
                 if (_log.IsInfoEnabled)
                 {
                     _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
@@ -358,6 +382,7 @@ namespace TalkdeskReportGenerator.ViewModels
                 IWriteResults writeResults = new WriteResultsToExcelFile();
 
                 await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedName, excelReader.WorksheetDay));
+                currentExcelCount++;
             }
 
             Status = "Job complete!";
