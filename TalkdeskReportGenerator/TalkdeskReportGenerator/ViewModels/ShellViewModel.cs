@@ -28,10 +28,8 @@ namespace TalkdeskReportGenerator.ViewModels
                     await excelReader.DeleteExcelAsync(tempExcelPath);
                 }
             }
-
             Properties.Settings.Default.TemporaryExcelPaths = new List<string>();
             Properties.Settings.Default.Save();
-
         }
     }
     public static class ActivateWindow

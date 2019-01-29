@@ -412,11 +412,6 @@ namespace TalkdeskReportGenerator.ViewModels
             MessageBox.Show("2019 Relativity ODA LLC.");
         }
 
-
-
-
-
-
     }
 }
 
