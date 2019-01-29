@@ -44,7 +44,7 @@ namespace TalkdeskReportGenerator.ViewModels
             }
 
         }
-        public string TempExcelPath { get; set; }
+        public List<string> TempExcelPaths { get; set; }
         public string Status
         {
             get => _status;
@@ -103,6 +103,7 @@ namespace TalkdeskReportGenerator.ViewModels
             }
             Names = new List<string>();
             InputExcelPaths = new List<string>();
+            TempExcelPaths = new List<string>();
             GetNamesRan = false;
             Properties.Settings.Default.TemporaryExcelPaths = new List<string>();
 
@@ -179,7 +180,7 @@ namespace TalkdeskReportGenerator.ViewModels
             Names = new List<string>();
             GetNamesRan = false;
             Status = "";
-            TempExcelPath = null;
+            TempExcelPaths = new List<string>();
 
             foreach (string tempExcelPath in Properties.Settings.Default.TemporaryExcelPaths)
             {
@@ -262,9 +263,7 @@ namespace TalkdeskReportGenerator.ViewModels
                 _log.Info("ShellViewModel.GetTeamNamesAsync - Generating temporary, lightweight Excel");
             }
 
-            TempExcelPath = await excelReader.CreateLightweightExcelAsync(InputExcelPaths[0]);
-
-            Properties.Settings.Default.TemporaryExcelPaths.Add(TempExcelPath);
+            TempExcelPaths.Add(await excelReader.CreateLightweightExcelAsync(InputExcelPaths[0]));
 
             if (_log.IsInfoEnabled)
             {
@@ -273,7 +272,7 @@ namespace TalkdeskReportGenerator.ViewModels
 
             if (_log.IsDebugEnabled)
             {
-                _log.Debug($"ShellViewModel.GetTeamNamesAsync - TempExcelPath = { TempExcelPath }");
+                _log.Debug($"ShellViewModel.GetTeamNamesAsync - TempExcelPaths[0] = { TempExcelPaths[0] }");
             }
 
             Status = "Getting names from Excel...";
@@ -288,9 +287,9 @@ namespace TalkdeskReportGenerator.ViewModels
                 Row = Properties.Settings.Default.GroupByNameRow
             };
 
-            string groupByName = await excelReader.GetGroupByNameAsync(TempExcelPath, groupByCell);
+            string groupByName = await excelReader.GetGroupByNameAsync(TempExcelPaths[0], groupByCell);
 
-            Names = await excelReader.GetNamesAsync(TempExcelPath, groupByCell);
+            Names = await excelReader.GetNamesAsync(TempExcelPaths[0], groupByCell);
 
             SelectNameText = $"Select { groupByName }";
             Status = $"Please select { groupByName } name";
@@ -306,10 +305,9 @@ namespace TalkdeskReportGenerator.ViewModels
             IGetStatuses getStatuses = new GetStatuses(db, _log);
             ExcelReader excelReader = new ExcelReader(_log);
 
-            Status = "Reading Excel...";
-            if (_log.IsInfoEnabled)
+            for (int i = 1; i < InputExcelPaths.Count; i++)
             {
-                _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+                TempExcelPaths.Add(await excelReader.CreateLightweightExcelAsync(InputExcelPaths[i]));
             }
 
             ExcelCell groupByNameCell = new ExcelCell()
@@ -324,34 +322,43 @@ namespace TalkdeskReportGenerator.ViewModels
                 Row = Properties.Settings.Default.PhoneColorKeyRow
             };
 
-            string agentNameColumn = Properties.Settings.Default.AgentNameColumn;
-            string twelveAmColumn = Properties.Settings.Default.TwelveAmColumn;
-
-            List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(TempExcelPath, SelectedName, agentNameColumn, twelveAmColumn, groupByNameCell, phoneColorKeyCell);
-
-            IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
-            DateTime day = excelReader.WorksheetDay;
-
-            Status = "Retrieving agent statuses...";
-            if (_log.IsInfoEnabled)
+            foreach (string tempExcelPath in TempExcelPaths)
             {
-                _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+                Status = "Reading Excel...";
+                if (_log.IsInfoEnabled)
+                {
+                    _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+                }
+
+                string agentNameColumn = Properties.Settings.Default.AgentNameColumn;
+                string twelveAmColumn = Properties.Settings.Default.TwelveAmColumn;
+
+                List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(tempExcelPath, SelectedName, agentNameColumn, twelveAmColumn, groupByNameCell, phoneColorKeyCell);
+
+                IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
+                DateTime day = excelReader.WorksheetDay;
+
+                Status = "Retrieving agent statuses...";
+                if (_log.IsInfoEnabled)
+                {
+                    _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+                }
+
+                TimeZoneInfo excelTimeZone = TimeZoneInfo.FindSystemTimeZoneById(Properties.Settings.Default.TimeZoneId);
+
+                List<AgentStatuses> agentStatuses = await getStatusesFromStartStops.GetAgentStatusesListAsync(getStatuses, startStopList, day, excelTimeZone);
+                IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
+
+                List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));
+                Status = "Writing results to file...";
+                if (_log.IsInfoEnabled)
+                {
+                    _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
+                }
+                IWriteResults writeResults = new WriteResultsToExcelFile();
+
+                await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedName, excelReader.WorksheetDay));
             }
-
-            TimeZoneInfo excelTimeZone = TimeZoneInfo.FindSystemTimeZoneById(Properties.Settings.Default.TimeZoneId);
-
-            List<AgentStatuses> agentStatuses = await getStatusesFromStartStops.GetAgentStatusesListAsync(getStatuses, startStopList, day, excelTimeZone);
-            IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
-
-            List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));
-            Status = "Writing results to file...";
-            if (_log.IsInfoEnabled)
-            {
-                _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
-            }
-            IWriteResults writeResults = new WriteResultsToExcelFile();
-
-            await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedName, excelReader.WorksheetDay));
 
             Status = "Job complete!";
             if (_log.IsInfoEnabled)
