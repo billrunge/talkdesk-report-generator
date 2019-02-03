@@ -15,12 +15,12 @@ namespace TalkdeskReportGenerator.ViewModels
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private List<string> _inputExcelPaths;
+        private List<string> _names;
         private string _outputPath;
         private string _status;
         private string _selectedName;
         private bool _getNamesRan;
         private bool _reportRan;
-        private List<string> _names;
 
         public List<string> InputExcelPaths
         {
@@ -31,6 +31,27 @@ namespace TalkdeskReportGenerator.ViewModels
                 NotifyOfPropertyChange(() => InputExcelPaths);
                 NotifyOfPropertyChange(() => CanGetNames);
                 NotifyOfPropertyChange(() => CanSetExcelPath);
+            }
+        }
+        public List<string> TempExcelPaths { get; set; }
+        public List<string> Names
+        {
+            get => _names;
+            set
+            {
+                _names = value;
+                NotifyOfPropertyChange(() => Names);
+                NotifyOfPropertyChange(() => CanSetName);
+                NotifyOfPropertyChange(() => CanGetNames);
+            }
+        }
+        public string SelectNameText
+        {
+            get => _selectedName;
+            set
+            {
+                _selectedName = value;
+                NotifyOfPropertyChange(() => SelectNameText);
             }
         }
         public string OutputPath
@@ -45,7 +66,6 @@ namespace TalkdeskReportGenerator.ViewModels
             }
 
         }
-        public List<string> TempExcelPaths { get; set; }
         public string Status
         {
             get => _status;
@@ -87,26 +107,6 @@ namespace TalkdeskReportGenerator.ViewModels
                 NotifyOfPropertyChange(() => CanSetName);
             }
         }
-        public List<string> Names
-        {
-            get => _names;
-            set
-            {
-                _names = value;
-                NotifyOfPropertyChange(() => Names);
-                NotifyOfPropertyChange(() => CanSetName);
-                NotifyOfPropertyChange(() => CanGetNames);
-            }
-        }
-        public string SelectNameText
-        {
-            get => _selectedName;
-            set
-            {
-                _selectedName = value;
-                NotifyOfPropertyChange(() => SelectNameText);
-            }
-        }
 
         public ReportsViewModel()
         {
@@ -132,6 +132,9 @@ namespace TalkdeskReportGenerator.ViewModels
 
         public void SetExcelPath()
         {
+            try
+            {
+                          
             if (_log.IsDebugEnabled)
             {
                 _log.Debug("ShellViewModel.SetExcelPath - Opening file dialog");
@@ -162,57 +165,31 @@ namespace TalkdeskReportGenerator.ViewModels
                 _log.Debug("ShellViewModel.SetExcelPath - Checking to see if file name was actually set");
             }
 
-            if (fileDialog.ShowDialog() == true)
-            {
-                InputExcelPaths = fileDialog.FileNames.ToList();
-
-                Properties.Settings.Default.InputDirectory = Path.GetDirectoryName(InputExcelPaths[0]);
-
-                if (_log.IsDebugEnabled)
+                if (fileDialog.ShowDialog() == true)
                 {
-                    _log.Info($"ShellViewModel.SetExcelPath - ({ InputExcelPaths.Count.ToString() }) InputExcelPaths");
-                    foreach (string inputExcelPath in InputExcelPaths)
+                    InputExcelPaths = fileDialog.FileNames.ToList();
+
+                    Properties.Settings.Default.InputDirectory = Path.GetDirectoryName(InputExcelPaths[0]);
+
+                    if (_log.IsDebugEnabled)
                     {
-                        _log.Info($"ShellViewModel.SetExcelPath - { inputExcelPath }");
-                    }
-                }
-
-                Properties.Settings.Default.Save();
-            }
-
-        }
-
-        public async Task Clear()
-        {
-            if (_log.IsDebugEnabled)
-            {
-                _log.Debug("ShellViewModel.Clear - Clearing InputExcelPath, OutputPath, SelectedTeam, TeamNames, GetTeamNamesRan, and Status properties");
-            }
-            InputExcelPaths = new List<string>();
-            OutputPath = null;
-            SelectedName = null;
-            Names = new List<string>();
-            GetNamesRan = false;
-            ReportRan = false;
-            Status = "";
-            TempExcelPaths = new List<string>();
-
-            foreach (string tempExcelPath in Properties.Settings.Default.TemporaryExcelPaths)
-            {
-                if (!string.IsNullOrWhiteSpace(tempExcelPath))
-                {
-                    if (_log.IsInfoEnabled)
-                    {
-                        _log.Info($"ReportsViewModel.Clear - Deleting the temporary file: { tempExcelPath }");
+                        _log.Info($"ShellViewModel.SetExcelPath - ({ InputExcelPaths.Count.ToString() }) InputExcelPaths");
+                        foreach (string inputExcelPath in InputExcelPaths)
+                        {
+                            _log.Info($"ShellViewModel.SetExcelPath - { inputExcelPath }");
+                        }
                     }
 
-                    ExcelReader excelReader = new ExcelReader(_log);
-                    await excelReader.DeleteExcelAsync(tempExcelPath);
+                    Properties.Settings.Default.Save();
                 }
             }
-
-            Properties.Settings.Default.TemporaryExcelPaths = new List<string>();
-            Properties.Settings.Default.Save();
+            catch(Exception e)
+            {
+                MessageBox.Show("An issue has occurred. Please check log for more details");
+                _log.Error($@"An error has occcurred when setting input Excel(s) path {Environment.NewLine}
+                                {e.Message} {Environment.NewLine}
+                                {e.StackTrace} {Environment.NewLine}");
+            }
 
         }
 
@@ -390,6 +367,40 @@ namespace TalkdeskReportGenerator.ViewModels
             {
                 _log.Info("ShellViewModel.GenerateReportAsync - " + Status);
             }
+
+        }
+
+        public async Task Clear()
+        {
+            if (_log.IsDebugEnabled)
+            {
+                _log.Debug("ShellViewModel.Clear - Clearing InputExcelPath, OutputPath, SelectedTeam, TeamNames, GetTeamNamesRan, and Status properties");
+            }
+            InputExcelPaths = new List<string>();
+            OutputPath = null;
+            SelectedName = null;
+            Names = new List<string>();
+            GetNamesRan = false;
+            ReportRan = false;
+            Status = "";
+            TempExcelPaths = new List<string>();
+
+            foreach (string tempExcelPath in Properties.Settings.Default.TemporaryExcelPaths)
+            {
+                if (!string.IsNullOrWhiteSpace(tempExcelPath))
+                {
+                    if (_log.IsInfoEnabled)
+                    {
+                        _log.Info($"ReportsViewModel.Clear - Deleting the temporary file: { tempExcelPath }");
+                    }
+
+                    ExcelReader excelReader = new ExcelReader(_log);
+                    await excelReader.DeleteExcelAsync(tempExcelPath);
+                }
+            }
+
+            Properties.Settings.Default.TemporaryExcelPaths = new List<string>();
+            Properties.Settings.Default.Save();
 
         }
 
