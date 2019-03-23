@@ -17,8 +17,10 @@ namespace TalkdeskReportGenerator.Library
                 IXLWorksheet sheet = wb.Worksheets.Add(date);
                 sheet.Cell(1, 1).Value = "Agent Name";
                 sheet.Cell(1, 2).Value = "Status";
-                sheet.Cell(1, 3).Value = "Minutes in status";
+                sheet.Cell(1, 3).Value = "Minutes in Status";
                 sheet.Cell(1, 4).Value = "Compliance Percentage";
+                sheet.Cell(1, 5).Value = "Time in Compliance";
+                sheet.Cell(1, 6).Value = "Total Scheduled Time";
                 int currentRow = 2;
 
 
@@ -37,7 +39,7 @@ namespace TalkdeskReportGenerator.Library
                                 totalStatusTime += status.StatusTime;
                                 break;
                             case "After Call Work":
-                                goodStatusTime += status.StatusTime;
+                                goodStatusTime += (goodStatusTime < 120) ? goodStatusTime : 120;
                                 totalStatusTime += status.StatusTime;
                                 break;
                             case "On a Call":
@@ -52,6 +54,9 @@ namespace TalkdeskReportGenerator.Library
                     if (totalStatusTime > 0)
                     {
                         sheet.Cell(currentRow, 4).Value = $"{ (((decimal)goodStatusTime / (decimal)totalStatusTime) * 100).ToString("0.##") }%";
+                        sheet.Cell(currentRow, 5).Value = ((decimal)goodStatusTime / 60).ToString("0.##"); ;
+                        sheet.Cell(currentRow, 6).Value = ((decimal)totalStatusTime / 60).ToString("0.##"); ;
+
                     } else
                     {
                         sheet.Cell(currentRow, 4).Value = "0%";
