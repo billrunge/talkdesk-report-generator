@@ -284,6 +284,7 @@ namespace TalkdeskReportGenerator.ViewModels
             string groupByName = await excelReader.GetGroupByNameAsync(TempExcelPaths[0], groupByCell);
 
             Names = await excelReader.GetNamesAsync(TempExcelPaths[0], groupByCell);
+            Names.Add("All");
 
             SelectNameText = $"Select { groupByName }";
             Status = $"Please select { groupByName } name";
