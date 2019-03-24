@@ -19,8 +19,10 @@ namespace TalkdeskReportGenerator.ViewModels
         private string _outputPath;
         private string _status;
         private string _selectedName;
+        private string _allNames = "All";
         private bool _getNamesRan;
         private bool _reportRan;
+    
 
         public List<string> InputExcelPaths
         {
@@ -284,7 +286,7 @@ namespace TalkdeskReportGenerator.ViewModels
             string groupByName = await excelReader.GetGroupByNameAsync(TempExcelPaths[0], groupByCell);
 
             Names = await excelReader.GetNamesAsync(TempExcelPaths[0], groupByCell);
-            Names.Add("All");
+            Names.Add(_allNames);
 
             SelectNameText = $"Select { groupByName }";
             Status = $"Please select { groupByName } name";
@@ -335,7 +337,20 @@ namespace TalkdeskReportGenerator.ViewModels
                 string agentNameColumn = Properties.Settings.Default.AgentNameColumn;
                 string twelveAmColumn = Properties.Settings.Default.TwelveAmColumn;
 
-                List<AgentStartStops> startStopList = await excelReader.GetAgentStartStopListAsync(tempExcelPath, SelectedName, agentNameColumn, twelveAmColumn, groupByNameCell, phoneColorKeyCell);
+                List<AgentStartStops> startStopList = new List<AgentStartStops>();
+
+                if (SelectedName == _allNames)
+                {
+                    foreach(string name in Names)
+                    {                        
+                        startStopList.AddRange(await excelReader.GetAgentStartStopListAsync(tempExcelPath, name, agentNameColumn, twelveAmColumn, groupByNameCell, phoneColorKeyCell));
+                    }
+
+                }
+                else
+                {
+                    startStopList = await excelReader.GetAgentStartStopListAsync(tempExcelPath, SelectedName, agentNameColumn, twelveAmColumn, groupByNameCell, phoneColorKeyCell);
+                }
 
                 IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
                 DateTime day = excelReader.WorksheetDay;
