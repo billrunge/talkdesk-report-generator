@@ -4,6 +4,11 @@ using System.Collections.Generic;
 
 namespace TalkdeskReportGenerator.Library
 {
+    public interface IWriteResults
+    {
+        void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, string teamName, DateTime workbookDate);
+    }
+
     public class WriteResultsToExcelFile : IWriteResults
     {
         public void WriteResults(string folderPath, List<AgentStatuses> consolidatedAgentStatuses, string teamName, DateTime workbookDate)

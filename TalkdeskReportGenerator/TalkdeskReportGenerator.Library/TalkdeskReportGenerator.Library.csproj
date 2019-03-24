@@ -81,7 +81,6 @@
     <Compile Include="StartStop.cs" />
     <Compile Include="Status.cs" />
     <Compile Include="WriteResultsToExcelFile.cs" />
-    <Compile Include="WriteResultsToTxtFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
