@@ -36,7 +36,7 @@ namespace TalkdeskReportGenerator.Library
                 AgentStatuses newAgentStatuses = new AgentStatuses
                 {
                     AgentName = agentStatuses.AgentName,
-                    Statuses = newStatuses                    
+                    Statuses = newStatuses
                 };
 
                 outputList.Add(newAgentStatuses);

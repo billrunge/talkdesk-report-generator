@@ -68,13 +68,17 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AgentData.cs" />
     <Compile Include="AgentStartStops.cs" />
     <Compile Include="AgentStatuses.cs" />
+    <Compile Include="Call.cs" />
+    <Compile Include="ConsolidateAgentData.cs" />
     <Compile Include="ConsolidateAgentStatuses.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="ExcelCell.cs" />
     <Compile Include="ExcelReader.cs" />
     <Compile Include="ExcelRowRange.cs" />
+    <Compile Include="GetCalls.cs" />
     <Compile Include="GetStatuses.cs" />
     <Compile Include="GetStatusesFromStartStops.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
