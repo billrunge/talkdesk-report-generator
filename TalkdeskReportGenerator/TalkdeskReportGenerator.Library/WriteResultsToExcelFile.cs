@@ -97,7 +97,7 @@ namespace TalkdeskReportGenerator.Library
                         }
                     }
 
-                    goodStatusTime += (afterCallWork > ((inboundCalls + outboundCalls) * afterCallWorkSeconds)) ? afterCallWork : ((inboundCalls + outboundCalls) * afterCallWorkSeconds);
+                    goodStatusTime += (afterCallWork < ((inboundCalls + outboundCalls) * afterCallWorkSeconds)) ? afterCallWork : ((inboundCalls + outboundCalls) * afterCallWorkSeconds);
 
                     if (totalStatusTime > 0)
                     {
