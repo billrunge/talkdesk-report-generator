@@ -3,13 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace TalkdeskReportGenerator.Library
 {
-    class GetCalls
+    public interface IGetCalls
+    {
+        Task<List<Call>> GetCallListAsync(string userName, DateTime statusStart, DateTime statusEnd, int offset);
+    }
+
+
+    public class GetCalls : IGetCalls
     {
         private IDatabase _database;
         private readonly ILog _log;
@@ -89,7 +93,7 @@ namespace TalkdeskReportGenerator.Library
                     Call call = new Call()
                     {
                         Count = count,
-                        Type = type                       
+                        Type = type
                     };
                     calls.Add(call);
                 }
