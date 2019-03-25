@@ -15,6 +15,7 @@ namespace TalkdeskReportGenerator.Library
         {
             string date = workbookDate.ToShortDateString().Replace(@"/", "-");
             string filePath = $"{folderPath}TalkDesk - {teamName} - {date}.xlsx";
+            int afterCallWorkSeconds = 120;
 
 
             using (XLWorkbook wb = new XLWorkbook())
@@ -38,30 +39,7 @@ namespace TalkdeskReportGenerator.Library
                 for (int i = 0; i < consolidatedAgentData.Count; i++)
                 {
                     sheet.Cell(currentRow, 1).Value = consolidatedAgentData[i].AgentName;
-                    int goodStatusTime = 0;
-                    int totalStatusTime = 0;
 
-                    foreach (Status status in consolidatedAgentData[i].Statuses)
-                    {
-                        switch (status.StatusLabel)
-                        {
-                            case "Available":
-                                goodStatusTime += status.StatusTime;
-                                totalStatusTime += status.StatusTime;
-                                break;
-                            case "After Call Work":
-                                goodStatusTime += (goodStatusTime < 120) ? goodStatusTime : 120;
-                                totalStatusTime += status.StatusTime;
-                                break;
-                            case "On a Call":
-                                goodStatusTime += status.StatusTime;
-                                totalStatusTime += status.StatusTime;
-                                break;
-                            default:
-                                totalStatusTime += status.StatusTime;
-                                break;
-                        }
-                    }
                     int inboundCalls = 0;
                     int outboundCalls = 0;
                     int missedCalls = 0;
@@ -93,8 +71,33 @@ namespace TalkdeskReportGenerator.Library
                         }
                     }
 
+                    int goodStatusTime = 0;
+                    int totalStatusTime = 0;
+                    int afterCallWork = 0;
 
+                    foreach (Status status in consolidatedAgentData[i].Statuses)
+                    {
+                        switch (status.StatusLabel)
+                        {
+                            case "Available":
+                                goodStatusTime += status.StatusTime;
+                                totalStatusTime += status.StatusTime;
+                                break;
+                            case "After Call Work":
+                                afterCallWork += status.StatusTime;
+                                totalStatusTime += status.StatusTime;
+                                break;
+                            case "On a Call":
+                                goodStatusTime += status.StatusTime;
+                                totalStatusTime += status.StatusTime;
+                                break;
+                            default:
+                                totalStatusTime += status.StatusTime;
+                                break;
+                        }
+                    }
 
+                    goodStatusTime += (afterCallWork > ((inboundCalls + outboundCalls) * afterCallWorkSeconds)) ? afterCallWork : ((inboundCalls + outboundCalls) * afterCallWorkSeconds);
 
                     if (totalStatusTime > 0)
                     {
