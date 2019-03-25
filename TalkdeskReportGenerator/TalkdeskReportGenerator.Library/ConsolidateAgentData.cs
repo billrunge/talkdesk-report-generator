@@ -8,7 +8,7 @@ namespace TalkdeskReportGenerator.Library
         List<AgentData> Consolidate(List<AgentData> agentDataList);
     }
 
-    internal class ConsolidateAgentData : IConsolidateAgentData
+    public class ConsolidateAgentData : IConsolidateAgentData
     {
         public List<AgentData> Consolidate(List<AgentData> agentDataList)
         {

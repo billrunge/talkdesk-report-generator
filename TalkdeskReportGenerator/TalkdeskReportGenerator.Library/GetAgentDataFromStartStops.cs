@@ -64,7 +64,6 @@ namespace TalkdeskReportGenerator.Library
             {
                 agentData.Statuses.AddRange(statuses);
             }
-
             return agentData;
         }
     }

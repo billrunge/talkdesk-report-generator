@@ -301,6 +301,7 @@ namespace TalkdeskReportGenerator.ViewModels
             ReportRan = true;
             IDatabase db = new Database(_log);
             IGetStatuses getStatuses = new GetStatuses(db, _log);
+            IGetCalls getCalls = new GetCalls(db, _log);
             ExcelReader excelReader = new ExcelReader(_log);
 
             int inputExcelPathsCount = InputExcelPaths.Count;
@@ -352,7 +353,8 @@ namespace TalkdeskReportGenerator.ViewModels
                     startStopList = await excelReader.GetAgentStartStopListAsync(tempExcelPath, SelectedName, agentNameColumn, twelveAmColumn, groupByNameCell, phoneColorKeyCell);
                 }
 
-                IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
+                //IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
+                IGetAgentDataFromStartStops getAgentDataFromStartStops = new GetAgentDataFromStartStops();
                 DateTime day = excelReader.WorksheetDay;
 
                 Status = $"Retrieving agent statuses for Excel  { currentExcelCount.ToString() } of {  inputExcelPathsCount.ToString() }...";
@@ -363,10 +365,11 @@ namespace TalkdeskReportGenerator.ViewModels
 
                 TimeZoneInfo excelTimeZone = TimeZoneInfo.FindSystemTimeZoneById(Properties.Settings.Default.TimeZoneId);
 
-                List<AgentStatuses> agentStatuses = await getStatusesFromStartStops.GetAgentStatusesListAsync(getStatuses, startStopList, day, excelTimeZone);
-                IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
+                List<AgentData> agentData = await getAgentDataFromStartStops.GetAgentDataListAsync(getStatuses, getCalls, startStopList, day, excelTimeZone);
+                //IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
+                IConsolidateAgentData consolidateAgentData = new ConsolidateAgentData();
 
-                List<AgentStatuses> consolidatedAgentStatuses = await Task.Run(() => consolidateStatuses.Consolidate(agentStatuses));
+                List<AgentData> consolidatedAgentData = await Task.Run(() => consolidateAgentData.Consolidate(agentData));
                 Status = $"Writing results to file for Excel  { currentExcelCount.ToString() } of {  inputExcelPathsCount.ToString() }...";
                 if (_log.IsInfoEnabled)
                 {
@@ -374,7 +377,7 @@ namespace TalkdeskReportGenerator.ViewModels
                 }
                 IWriteResults writeResults = new WriteResultsToExcelFile();
 
-                await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentStatuses, SelectedName, excelReader.WorksheetDay));
+                await Task.Run(() => writeResults.WriteResults(OutputPath, consolidatedAgentData, SelectedName, excelReader.WorksheetDay));
                 currentExcelCount++;
             }
 
