@@ -93,6 +93,10 @@ namespace TalkdeskReportGenerator.Library
                                 goodStatusTime += status.StatusTime;
                                 totalStatusTime += status.StatusTime;
                                 break;
+                            case "On a Bridge":
+                                goodStatusTime += status.StatusTime;
+                                totalStatusTime += status.StatusTime;
+                                break;
                             default:
                                 totalStatusTime += status.StatusTime;
                                 break;

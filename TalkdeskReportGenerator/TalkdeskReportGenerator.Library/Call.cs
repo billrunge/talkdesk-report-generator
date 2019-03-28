@@ -15,6 +15,6 @@
         outbound,
         outbound_missed,
         short_abandoned,
-        voicemail,
+        voicemail
     }
 }

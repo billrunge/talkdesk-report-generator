@@ -88,7 +88,10 @@ namespace TalkdeskReportGenerator.Library
                         throw new Exception("Unable to cast count returned from database to int");
                     };
 
-                    Enum.TryParse(reader["CallType"].ToString(), out CallType type);
+                    if (!Enum.TryParse(reader["CallType"].ToString(), out CallType type))
+                    {
+                        throw new Exception("Unable to cast CallType returned from database to CallType enum");
+                    }
 
                     Call call = new Call()
                     {
