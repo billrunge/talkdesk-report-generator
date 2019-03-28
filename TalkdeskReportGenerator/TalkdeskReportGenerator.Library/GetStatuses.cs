@@ -112,7 +112,7 @@ namespace TalkdeskReportGenerator.Library
             return statuses;
         }
 
-        public async Task<string> GetUserIdFromNameAsync(string name)
+        public async Task<string> GetUserIdFromNameAsync(string userName)
         {
             string userId = "";
 
@@ -127,7 +127,7 @@ namespace TalkdeskReportGenerator.Library
 
                 SqlParameter userNameParam = new SqlParameter("@UserName", SqlDbType.NVarChar)
                 {
-                    Value = name
+                    Value = userName.Trim()
                 };
 
                 SqlCommand command = new SqlCommand(sql, connection);
