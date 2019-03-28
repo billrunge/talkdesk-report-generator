@@ -16,14 +16,16 @@ namespace TalkdeskReportGenerator.Library
             string date = workbookDate.ToShortDateString().Replace(@"/", "-");
             string filePath = $"{folderPath}TalkDesk - {teamName} - {date}.xlsx";
             int afterCallWorkSeconds = 120;
+            int timeDivide = 3600;
+            string timeDivideName = "Hours";
 
-
+            
             using (XLWorkbook wb = new XLWorkbook())
             {
                 IXLWorksheet sheet = wb.Worksheets.Add(date);
                 sheet.Cell(1, 1).Value = "Agent Name";
                 sheet.Cell(1, 2).Value = "Status";
-                sheet.Cell(1, 3).Value = "Minutes in Status";
+                sheet.Cell(1, 3).Value = $"{ timeDivideName } in Status";
                 sheet.Cell(1, 4).Value = "Compliance Percentage";
                 sheet.Cell(1, 5).Value = "Time in Compliance";
                 sheet.Cell(1, 6).Value = "Total Scheduled Time";
@@ -102,8 +104,8 @@ namespace TalkdeskReportGenerator.Library
                     if (totalStatusTime > 0)
                     {
                         sheet.Cell(currentRow, 4).Value = $"{ (((decimal)goodStatusTime / (decimal)totalStatusTime) * 100).ToString("0.##") }%";
-                        sheet.Cell(currentRow, 5).Value = ((decimal)goodStatusTime / 60).ToString("0.##"); 
-                        sheet.Cell(currentRow, 6).Value = ((decimal)totalStatusTime / 60).ToString("0.##");
+                        sheet.Cell(currentRow, 5).Value = ((decimal)goodStatusTime / timeDivide).ToString("0.##"); 
+                        sheet.Cell(currentRow, 6).Value = ((decimal)totalStatusTime / timeDivide).ToString("0.##");
                         sheet.Cell(currentRow, 7).Value = inboundCalls;
                         sheet.Cell(currentRow, 8).Value = outboundCalls;
                         sheet.Cell(currentRow, 9).Value = missedCalls;
@@ -120,7 +122,7 @@ namespace TalkdeskReportGenerator.Library
                     foreach (Status status in consolidatedAgentData[i].Statuses)
                     {
                         sheet.Cell(currentRow, 2).Value = status.StatusLabel;
-                        sheet.Cell(currentRow, 3).Value = ((decimal)status.StatusTime / 60).ToString("0.##");
+                        sheet.Cell(currentRow, 3).Value = ((decimal)status.StatusTime / timeDivide).ToString("0.##");
                         currentRow += 1;
                     }               
 
