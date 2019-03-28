@@ -27,8 +27,8 @@ namespace TalkdeskReportGenerator.Library
                 sheet.Cell(1, 2).Value = "Status";
                 sheet.Cell(1, 3).Value = $"{ timeDivideName } in Status";
                 sheet.Cell(1, 4).Value = "Compliance Percentage";
-                sheet.Cell(1, 5).Value = "Time in Compliance";
-                sheet.Cell(1, 6).Value = "Total Scheduled Time";
+                sheet.Cell(1, 5).Value = $"{ timeDivideName } in Compliance";
+                sheet.Cell(1, 6).Value = $"Total Scheduled { timeDivideName }";
                 sheet.Cell(1, 7).Value = "Inbound Calls";
                 sheet.Cell(1, 8).Value = "Outbound Calls";
                 sheet.Cell(1, 9).Value = "Missed Calls";

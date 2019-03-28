@@ -51,7 +51,7 @@ namespace TalkdeskReportGenerator.Library
 
                 SqlParameter userIdParam = new SqlParameter("@UserName", SqlDbType.NVarChar)
                 {
-                    Value = userName
+                    Value = userName.Trim()
                 };
 
                 SqlParameter statusStartParam = new SqlParameter("@StatusStart", SqlDbType.DateTime2)
