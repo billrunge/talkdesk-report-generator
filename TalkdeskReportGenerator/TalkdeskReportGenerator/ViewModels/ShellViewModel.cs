@@ -32,11 +32,14 @@ namespace TalkdeskReportGenerator.ViewModels
             Properties.Settings.Default.Save();
         }
     }
+
     public static class ActivateWindow
     {
         public static ShellViewModel ShellView;
         public static ReportsViewModel ReportsView = new ReportsViewModel();
         public static SettingsViewModel SettingsView = new SettingsViewModel();
+
+        public static EditUserMappingViewModel EditUserMappingView = new EditUserMappingViewModel();
 
         public static void OpenItem(IScreen screen)
         {
@@ -51,6 +54,24 @@ namespace TalkdeskReportGenerator.ViewModels
         public static void ViewSettings()
         {
             OpenItem(SettingsView);
+        }
+
+        public static void ViewUserMapping()
+        {
+        UserMappingViewModel userMappingView = new UserMappingViewModel();
+        OpenItem(userMappingView);
+        }
+
+        public static void AddUserMapping()
+        {
+            EditUserMappingViewModel editUserMappingView = new EditUserMappingViewModel();
+            OpenItem(editUserMappingView);
+        }
+
+        public static void EditUserMapping(UserMapping mapping)
+        {
+            EditUserMappingViewModel editUserMappingView = new EditUserMappingViewModel(mapping);
+            OpenItem(editUserMappingView);
         }
     }
 }

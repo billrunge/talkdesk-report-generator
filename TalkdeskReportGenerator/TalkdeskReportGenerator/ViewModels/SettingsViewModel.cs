@@ -220,5 +220,14 @@ namespace TalkdeskReportGenerator.ViewModels
             NotifyOfPropertyChange(() => CanSave);
             NotifyOfPropertyChange(() => CanCancel);
         }
+
+        public void UserMapping()
+        {
+            ActivateWindow.ViewUserMapping();
+        }
+
+
     }
 }
+
+

@@ -29,6 +29,9 @@
     <Setting Name="TemporaryExcelPaths" Type="System.Collections.Generic.List&lt;System.String&gt;" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="UserMappings" Type="System.Collections.Generic.List&lt;Library.UserMapping&gt;" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="InputDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\</Value>
     </Setting>

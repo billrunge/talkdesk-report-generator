@@ -353,6 +353,9 @@ namespace TalkdeskReportGenerator.ViewModels
                     startStopList = await excelReader.GetAgentStartStopListAsync(tempExcelPath, SelectedName, agentNameColumn, twelveAmColumn, groupByNameCell, phoneColorKeyCell);
                 }
 
+
+
+
                 //IGetStatusesFromStartStops getStatusesFromStartStops = new GetStatusesFromStartStops();
                 IGetAgentDataFromStartStops getAgentDataFromStartStops = new GetAgentDataFromStartStops();
                 DateTime day = excelReader.WorksheetDay;

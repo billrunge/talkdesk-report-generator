@@ -121,9 +121,11 @@ namespace TalkdeskReportGenerator.Library
                 await connection.OpenAsync();
 
                 string sql = @"
-                SELECT TOP 1 [UserID]
-                FROM [UserStatus] WITH(NOLOCK)
-                WHERE [UserName] = @UserName";
+                        SELECT TOP 1 [UserID] 
+                        FROM   [UserStatus] WITH(NOLOCK) 
+                        WHERE  [StatusLabel] <> 'Offline' 
+                               AND [UserName] = @UserName 
+                        ORDER  BY [StatusStart] DESC"; 
 
                 SqlParameter userNameParam = new SqlParameter("@UserName", SqlDbType.NVarChar)
                 {

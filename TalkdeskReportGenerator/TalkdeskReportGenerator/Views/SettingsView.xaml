@@ -166,11 +166,19 @@
 
         <Button Grid.Row="6" 
                 Grid.Column="4" 
-                Grid.ColumnSpan="3"
+                Grid.ColumnSpan="2"
                 Name="Save"
                 Background="#d9d9d9"
                 BorderThickness="0" 
                 Margin="2">Save</Button>
-        
+
+        <Button Grid.Row="6" 
+                Grid.Column="6" 
+                Grid.ColumnSpan="1"
+                Name="UserMapping"
+                Background="#d9d9d9"
+                BorderThickness="0" 
+                Margin="2">Map Users</Button>
+
     </Grid>
 </UserControl>

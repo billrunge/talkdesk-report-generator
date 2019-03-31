@@ -78,6 +78,7 @@
     <Compile Include="ExcelCell.cs" />
     <Compile Include="ExcelReader.cs" />
     <Compile Include="ExcelRowRange.cs" />
+    <Compile Include="UserMapping.cs" />
     <Compile Include="GetAgentDataFromStartStops.cs" />
     <Compile Include="GetCalls.cs" />
     <Compile Include="GetStatuses.cs" />

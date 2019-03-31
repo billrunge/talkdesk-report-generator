@@ -132,6 +132,17 @@ namespace TalkdeskReportGenerator.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Generic.List<Library.UserMapping> UserMappings {
+            get {
+                return ((global::System.Collections.Generic.List<Library.UserMapping>)(this["UserMappings"]));
+            }
+            set {
+                this["UserMappings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("C:\\")]
         public string InputDirectory {
             get {
