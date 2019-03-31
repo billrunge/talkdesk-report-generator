@@ -18,9 +18,9 @@ namespace TalkdeskReportGenerator.Views
     /// <summary>
     /// Interaction logic for SettingsView.xaml
     /// </summary>
-    public partial class UserMappingView : UserControl
+    public partial class AgentMappingView : UserControl
     {
-        public UserMappingView()
+        public AgentMappingView()
         {
             InitializeComponent();
         }

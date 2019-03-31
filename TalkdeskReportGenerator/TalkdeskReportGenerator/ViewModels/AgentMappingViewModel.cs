@@ -6,7 +6,7 @@ using TalkdeskReportGenerator.Library;
 
 namespace TalkdeskReportGenerator.ViewModels
 {
-    public class UserMappingViewModel : Screen
+    public class AgentMappingViewModel : Screen
     {
         private BindableCollection<AgentMapping> _mappings = new BindableCollection<AgentMapping>();
 
@@ -24,7 +24,7 @@ namespace TalkdeskReportGenerator.ViewModels
 
 
 
-        public UserMappingViewModel()
+        public AgentMappingViewModel()
         {
             List<AgentMapping> userMappingList = new List<AgentMapping>();
 
@@ -60,12 +60,12 @@ namespace TalkdeskReportGenerator.ViewModels
 
         public void Add()
         {
-            ActivateWindow.AddUserMapping();
+            ActivateWindow.AddAgentMapping();
         }
 
         public void Edit(AgentMapping mapping)
         {
-            ActivateWindow.EditUserMapping(mapping);
+            ActivateWindow.EditAgentMapping(mapping);
         }
     }
 }

@@ -223,7 +223,7 @@ namespace TalkdeskReportGenerator.ViewModels
 
         public void UserMapping()
         {
-            ActivateWindow.ViewUserMapping();
+            ActivateWindow.ViewAgentMapping();
         }
 
 

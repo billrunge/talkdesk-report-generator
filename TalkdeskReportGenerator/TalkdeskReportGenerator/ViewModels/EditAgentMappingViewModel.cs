@@ -9,7 +9,7 @@ using TalkdeskReportGenerator.Library;
 
 namespace TalkdeskReportGenerator.ViewModels
 {
-    public class EditUserMappingViewModel : Screen
+    public class EditAgentMappingViewModel : Screen
     {
         private string _excelName;
         private string _talkdeskName;
@@ -72,13 +72,13 @@ namespace TalkdeskReportGenerator.ViewModels
         }
 
 
-        public EditUserMappingViewModel()
+        public EditAgentMappingViewModel()
         {
             _newMapping = true;
             _editMapping = new AgentMapping();
         }
 
-        public EditUserMappingViewModel(AgentMapping mapping)
+        public EditAgentMappingViewModel(AgentMapping mapping)
         {
             _editMapping = mapping;
             _newMapping = false;
@@ -89,7 +89,7 @@ namespace TalkdeskReportGenerator.ViewModels
 
         public void Back()
         {
-            ActivateWindow.ViewUserMapping();
+            ActivateWindow.ViewAgentMapping();
         }
 
         public void Save()
@@ -118,7 +118,7 @@ namespace TalkdeskReportGenerator.ViewModels
                 userMappings.Add(userMapping);
                 Properties.Settings.Default.UserMappings = userMappings;
                 _editMapping = userMapping;
-                ActivateWindow.ViewUserMapping();
+                ActivateWindow.ViewAgentMapping();
             }            
         }
 

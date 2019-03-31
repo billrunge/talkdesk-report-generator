@@ -18,9 +18,9 @@ namespace TalkdeskReportGenerator.Views
     /// <summary>
     /// Interaction logic for EditUserMappingView.xaml
     /// </summary>
-    public partial class EditUserMappingView : UserControl
+    public partial class EditAgentMappingView : UserControl
     {
-        public EditUserMappingView()
+        public EditAgentMappingView()
         {
             InitializeComponent();
         }

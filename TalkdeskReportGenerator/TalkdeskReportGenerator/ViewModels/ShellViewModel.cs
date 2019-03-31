@@ -39,7 +39,7 @@ namespace TalkdeskReportGenerator.ViewModels
         public static ReportsViewModel ReportsView = new ReportsViewModel();
         public static SettingsViewModel SettingsView = new SettingsViewModel();
 
-        public static EditUserMappingViewModel EditUserMappingView = new EditUserMappingViewModel();
+        public static EditAgentMappingViewModel EditUserMappingView = new EditAgentMappingViewModel();
 
         public static void OpenItem(IScreen screen)
         {
@@ -56,21 +56,21 @@ namespace TalkdeskReportGenerator.ViewModels
             OpenItem(SettingsView);
         }
 
-        public static void ViewUserMapping()
+        public static void ViewAgentMapping()
         {
-        UserMappingViewModel userMappingView = new UserMappingViewModel();
+        AgentMappingViewModel userMappingView = new AgentMappingViewModel();
         OpenItem(userMappingView);
         }
 
-        public static void AddUserMapping()
+        public static void AddAgentMapping()
         {
-            EditUserMappingViewModel editUserMappingView = new EditUserMappingViewModel();
+            EditAgentMappingViewModel editUserMappingView = new EditAgentMappingViewModel();
             OpenItem(editUserMappingView);
         }
 
-        public static void EditUserMapping(AgentMapping mapping)
+        public static void EditAgentMapping(AgentMapping mapping)
         {
-            EditUserMappingViewModel editUserMappingView = new EditUserMappingViewModel(mapping);
+            EditAgentMappingViewModel editUserMappingView = new EditAgentMappingViewModel(mapping);
             OpenItem(editUserMappingView);
         }
     }
