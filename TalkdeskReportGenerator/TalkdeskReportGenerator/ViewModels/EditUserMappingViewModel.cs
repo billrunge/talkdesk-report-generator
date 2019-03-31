@@ -117,6 +117,7 @@ namespace TalkdeskReportGenerator.ViewModels
 
                 userMappings.Add(userMapping);
                 Properties.Settings.Default.UserMappings = userMappings;
+                _editMapping = userMapping;
                 ActivateWindow.ViewUserMapping();
             }            
         }

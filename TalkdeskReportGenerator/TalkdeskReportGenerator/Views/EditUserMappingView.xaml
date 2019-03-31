@@ -39,7 +39,7 @@
                  Grid.Column="2"
                  Grid.ColumnSpan="2"
                  FontSize="13"
-                 Text="{Binding ExcelName}"
+                 Text="{Binding Path=ExcelName, UpdateSourceTrigger=PropertyChanged}"
 
                  Margin="2" />
         <!-- Row 2 -->
@@ -50,25 +50,25 @@
                  Grid.Column="2"
                  Grid.ColumnSpan="2"
                  FontSize="13"
-                 Text="{Binding TalkdeskName}"
+                 Text="{Binding Path=TalkdeskName, UpdateSourceTrigger=PropertyChanged}"
                  Margin="2" />
 
         <!-- Row 4 -->
         <Button Grid.Row="4" 
                 Grid.Column="1" 
-                Margin="0,1,3,1" 
+                Margin="2" 
                 Background="#d9d9d9"
                 BorderThickness="0"  
                 Name="Back">Back</Button>
         <Button Grid.Row="4" 
                 Grid.Column="2" 
-                Margin="3,1,0,1" 
+                Margin="2" 
                 Background="#d9d9d9"
                 BorderThickness="0"  
                 Name="Cancel">Cancel</Button>
         <Button Grid.Row="4" 
                 Grid.Column="3" 
-                Margin="3,1,0,1" 
+                Margin="2" 
                 Background="#d9d9d9"
                 BorderThickness="0"  
                 Name="Save">Save</Button>
