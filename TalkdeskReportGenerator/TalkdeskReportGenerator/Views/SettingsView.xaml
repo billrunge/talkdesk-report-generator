@@ -28,7 +28,9 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
         
@@ -147,16 +149,25 @@
                  FontSize="13"
                  Text="{Binding TwelveAmColumn}"
                  Margin="2" />
-
+        
         <!-- Row 6 -->
         <Button Grid.Row="6" 
+                Grid.Column="1" 
+                Grid.ColumnSpan="1"
+                Name="UserMapping"
+                Background="#d9d9d9"
+                BorderThickness="0" 
+                Margin="2">Agent Mapping</Button>
+
+        <!-- Row 8 -->
+        <Button Grid.Row="8" 
                 Grid.Column="1" 
                 Name="Back"
                 Background="#d9d9d9"
                 BorderThickness="0"  
                 Margin="2">Back</Button>
 
-        <Button Grid.Row="6"
+        <Button Grid.Row="8"
                 Grid.Column="2"
                 Grid.ColumnSpan="2"
                 Name="Cancel"
@@ -164,7 +175,7 @@
                 BorderThickness="0" 
                 Margin="2">Cancel</Button>
 
-        <Button Grid.Row="6" 
+        <Button Grid.Row="8" 
                 Grid.Column="4" 
                 Grid.ColumnSpan="2"
                 Name="Save"
@@ -172,13 +183,7 @@
                 BorderThickness="0" 
                 Margin="2">Save</Button>
 
-        <Button Grid.Row="6" 
-                Grid.Column="6" 
-                Grid.ColumnSpan="1"
-                Name="UserMapping"
-                Background="#d9d9d9"
-                BorderThickness="0" 
-                Margin="2">Map Users</Button>
+
 
     </Grid>
 </UserControl>

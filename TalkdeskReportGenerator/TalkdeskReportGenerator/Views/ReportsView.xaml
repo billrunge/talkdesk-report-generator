@@ -29,6 +29,7 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
 
@@ -117,20 +118,20 @@
                   IsReadOnly="True">
         </ComboBox>
 
-        <!-- Row 5 -->
+        <!-- Row 6 -->
         <Button
             x:Name="GenerateReportAsync"
-            Grid.Row="5" 
+            Grid.Row="6" 
             Grid.Column="1" 
             Grid.ColumnSpan="4" 
             BorderThickness="0"
             Background="#d9d9d9"
             Margin="2">Generate Report</Button>
 
-        <!-- Row 6/Bottom Status -->
+        <!-- Row 7/Bottom Status -->
         <TextBlock
             x:Name="Status"
-            Grid.Row="6"
+            Grid.Row="7"
             Grid.Column="1"
             Grid.ColumnSpan="4"
             Margin="3, 0, 0, 0">
