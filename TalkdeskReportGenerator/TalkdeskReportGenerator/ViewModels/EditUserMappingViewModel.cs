@@ -14,7 +14,7 @@ namespace TalkdeskReportGenerator.ViewModels
         private string _excelName;
         private string _talkdeskName;
         private bool _newMapping;
-        private UserMapping _editMapping;
+        private AgentMapping _editMapping;
 
         public string ExcelName
         {
@@ -51,7 +51,7 @@ namespace TalkdeskReportGenerator.ViewModels
         {
             get
             {
-                return (ExcelName == _editMapping.ExcelUser && TalkdeskName == _editMapping.TalkdeskUser) ? false : true;
+                return (ExcelName == _editMapping.ExcelAgentName && TalkdeskName == _editMapping.TalkdeskAgentName) ? false : true;
             }
         }
 
@@ -59,7 +59,7 @@ namespace TalkdeskReportGenerator.ViewModels
         {
             get
             {
-                return (ExcelName == _editMapping.ExcelUser && TalkdeskName == _editMapping.TalkdeskUser) ? false : true;
+                return (ExcelName == _editMapping.ExcelAgentName && TalkdeskName == _editMapping.TalkdeskAgentName) ? false : true;
             }
         }
 
@@ -67,7 +67,7 @@ namespace TalkdeskReportGenerator.ViewModels
         {
             get
             {
-                return (ExcelName == _editMapping.ExcelUser && TalkdeskName == _editMapping.TalkdeskUser) ? true : false;
+                return (ExcelName == _editMapping.ExcelAgentName && TalkdeskName == _editMapping.TalkdeskAgentName) ? true : false;
             }
         }
 
@@ -75,15 +75,15 @@ namespace TalkdeskReportGenerator.ViewModels
         public EditUserMappingViewModel()
         {
             _newMapping = true;
-            _editMapping = new UserMapping();
+            _editMapping = new AgentMapping();
         }
 
-        public EditUserMappingViewModel(UserMapping mapping)
+        public EditUserMappingViewModel(AgentMapping mapping)
         {
             _editMapping = mapping;
             _newMapping = false;
-            ExcelName = mapping.ExcelUser;
-            TalkdeskName = mapping.TalkdeskUser;
+            ExcelName = mapping.ExcelAgentName;
+            TalkdeskName = mapping.TalkdeskAgentName;
         }
 
 
@@ -103,16 +103,16 @@ namespace TalkdeskReportGenerator.ViewModels
             }
             else
             {
-                List<UserMapping> userMappings = Properties.Settings.Default.UserMappings ?? new List<UserMapping>();
+                List<AgentMapping> userMappings = Properties.Settings.Default.UserMappings ?? new List<AgentMapping>();
                 if (!_newMapping)
                 {
                     userMappings.Remove(_editMapping);
                 }
 
-                UserMapping userMapping = new UserMapping()
+                AgentMapping userMapping = new AgentMapping()
                 {
-                    ExcelUser = ExcelName,
-                    TalkdeskUser = TalkdeskName
+                    ExcelAgentName = ExcelName,
+                    TalkdeskAgentName = TalkdeskName
                 };
 
                 userMappings.Add(userMapping);
@@ -124,8 +124,8 @@ namespace TalkdeskReportGenerator.ViewModels
 
         public void Cancel()
         {
-            ExcelName = _editMapping.ExcelUser;
-            TalkdeskName = _editMapping.TalkdeskUser;
+            ExcelName = _editMapping.ExcelAgentName;
+            TalkdeskName = _editMapping.TalkdeskAgentName;
         }
 
 

@@ -8,11 +8,11 @@ namespace TalkdeskReportGenerator.ViewModels
 {
     public class UserMappingViewModel : Screen
     {
-        private BindableCollection<UserMapping> _mappings = new BindableCollection<UserMapping>();
+        private BindableCollection<AgentMapping> _mappings = new BindableCollection<AgentMapping>();
 
 
 
-        public BindableCollection<UserMapping> Mappings
+        public BindableCollection<AgentMapping> Mappings
         {
             get => _mappings;
             set
@@ -26,7 +26,7 @@ namespace TalkdeskReportGenerator.ViewModels
 
         public UserMappingViewModel()
         {
-            List<UserMapping> userMappingList = new List<UserMapping>();
+            List<AgentMapping> userMappingList = new List<AgentMapping>();
 
             if (Properties.Settings.Default.UserMappings == null)
             {
@@ -37,13 +37,13 @@ namespace TalkdeskReportGenerator.ViewModels
                 userMappingList = Properties.Settings.Default.UserMappings;
             }
 
-            Mappings = new BindableCollection<UserMapping>(userMappingList);
+            Mappings = new BindableCollection<AgentMapping>(userMappingList);
 
             Properties.Settings.Default.UserMappings = Mappings.ToList();
         }
 
 
-        public void Delete(UserMapping mapping)
+        public void Delete(AgentMapping mapping)
         {
             MessageBoxResult result = MessageBox.Show("Are you sure?", "Delete Mapping", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
@@ -63,7 +63,7 @@ namespace TalkdeskReportGenerator.ViewModels
             ActivateWindow.AddUserMapping();
         }
 
-        public void Edit(UserMapping mapping)
+        public void Edit(AgentMapping mapping)
         {
             ActivateWindow.EditUserMapping(mapping);
         }

@@ -132,9 +132,9 @@ namespace TalkdeskReportGenerator.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Generic.List<Library.UserMapping> UserMappings {
+        public global::System.Collections.Generic.List<Library.AgentMapping> UserMappings {
             get {
-                return ((global::System.Collections.Generic.List<Library.UserMapping>)(this["UserMappings"]));
+                return ((global::System.Collections.Generic.List<Library.AgentMapping>)(this["UserMappings"]));
             }
             set {
                 this["UserMappings"] = value;

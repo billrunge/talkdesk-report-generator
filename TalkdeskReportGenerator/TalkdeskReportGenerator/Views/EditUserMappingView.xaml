@@ -33,7 +33,7 @@
         <!-- Row 1 -->
         <TextBlock Grid.Row="1" 
                    TextAlignment="Right"
-                   Text="Excel Name: "
+                   Text="Excel Agent Name: "
                    Grid.Column="1" />
         <TextBox Grid.Row="1" 
                  Grid.Column="2"
@@ -44,7 +44,7 @@
                  Margin="2" />
         <!-- Row 2 -->
         <TextBlock Grid.Row="2"
-                   Text="Talkdesk Name: "
+                   Text="Talkdesk Agent Name: "
                    Grid.Column="1" />
         <TextBox Grid.Row="2" 
                  Grid.Column="2"

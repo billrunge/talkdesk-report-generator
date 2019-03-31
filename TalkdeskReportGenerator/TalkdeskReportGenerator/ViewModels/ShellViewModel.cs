@@ -68,7 +68,7 @@ namespace TalkdeskReportGenerator.ViewModels
             OpenItem(editUserMappingView);
         }
 
-        public static void EditUserMapping(UserMapping mapping)
+        public static void EditUserMapping(AgentMapping mapping)
         {
             EditUserMappingViewModel editUserMappingView = new EditUserMappingViewModel(mapping);
             OpenItem(editUserMappingView);
