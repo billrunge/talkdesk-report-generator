@@ -82,7 +82,6 @@
     <Compile Include="GetAgentDataFromStartStops.cs" />
     <Compile Include="GetCalls.cs" />
     <Compile Include="GetStatuses.cs" />
-    <Compile Include="GetStatusesFromStartStops.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StartStop.cs" />
     <Compile Include="Status.cs" />

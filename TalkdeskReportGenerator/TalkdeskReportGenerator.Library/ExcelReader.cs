@@ -33,11 +33,6 @@ namespace TalkdeskReportGenerator.Library
 
         public async Task<List<AgentStartStops>> GetAgentStartStopListAsync(string excelPath, string columnName, string agentNameColumn, string twelveAmColumn, ExcelCell groupByNameCell, ExcelCell phoneColorKeyCell)
         {
-            if (_log.IsDebugEnabled)    
-            {
-                _log.Debug($"ExcelReader.GetAgentStartStopListAsync - Setting _teamName = { columnName }");
-            }
-
             List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
             if (_log.IsDebugEnabled)

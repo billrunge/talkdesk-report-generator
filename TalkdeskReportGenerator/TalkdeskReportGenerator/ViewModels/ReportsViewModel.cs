@@ -340,6 +340,7 @@ namespace TalkdeskReportGenerator.ViewModels
 
                 List<AgentStartStops> startStopList = new List<AgentStartStops>();
 
+
                 if (SelectedName == _allNames)
                 {
                     foreach(string name in Names)
@@ -367,8 +368,9 @@ namespace TalkdeskReportGenerator.ViewModels
                 }
 
                 TimeZoneInfo excelTimeZone = TimeZoneInfo.FindSystemTimeZoneById(Properties.Settings.Default.TimeZoneId);
+                List<AgentMapping> mappings = Properties.Settings.Default.UserMappings ?? new List<AgentMapping>();
 
-                List<AgentData> agentData = await getAgentDataFromStartStops.GetAgentDataListAsync(getStatuses, getCalls, startStopList, day, excelTimeZone);
+                List<AgentData> agentData = await getAgentDataFromStartStops.GetAgentDataListAsync(getStatuses, getCalls, startStopList, day, excelTimeZone, mappings);
                 //IConsolidateAgentStatuses consolidateStatuses = new ConsolidateAgentStatuses();
                 IConsolidateAgentData consolidateAgentData = new ConsolidateAgentData();
 
